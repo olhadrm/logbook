@@ -370,7 +370,7 @@ public class FleetComposite extends Composite {
             // 艦隊合計索敵値(装備込)
             totalLOS += ship.getSakuteki();
             // 艦隊合計対潜値(装備込)
-            int[] exceptionItems = {10, 11, 41};
+            Integer[] exceptionItems = {10, 11, 41};
             totaltaisen += ship.getTaisen() - itemList.stream()
                 .filter(Objects::nonNull)
                 .filter(item -> Arrays.asList(exceptionItems).contains(item.getType2()))
