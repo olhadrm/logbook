@@ -41,7 +41,4 @@ public final class ShipFilterDto extends AbstractDto {
     public boolean needbath = true;
     /** 修理の必要なし */
     public boolean notneedbath = true;
-    // ListはSerializeではない
-    public ArrayList<ShipFilterItemDto> filterList = null;
-
 }

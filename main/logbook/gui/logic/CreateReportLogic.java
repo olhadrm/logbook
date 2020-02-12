@@ -17,11 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.IntStream;
 
-import logbook.gui.ApplicationMain;
-import logbook.gui.ShipTable;
-import logbook.gui.widgets.ShipFilterComposite;
 import logbook.internal.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -73,7 +69,7 @@ public final class CreateReportLogic {
 
     /**
      * ドロップ報告書のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getBattleResultHeader() {
@@ -111,7 +107,7 @@ public final class CreateReportLogic {
 
     /**
      * ドロップ報告書のヘッダー(保存用)
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getBattleResultStoreHeader() {
@@ -133,7 +129,7 @@ public final class CreateReportLogic {
     /**
      * ドロップ報告書の内容(保存用)
      * @param results ドロップ報告書
-     * 
+     *
      * @return 内容
      */
     public static List<Comparable[]> getBattleResultStoreBody(List<BattleExDto> results) {
@@ -196,7 +192,7 @@ public final class CreateReportLogic {
 
     /**
      * 建造報告書のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getCreateShipHeader() {
@@ -248,7 +244,7 @@ public final class CreateReportLogic {
 
     /**
      * 開発報告書のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getCreateItemHeader() {
@@ -307,7 +303,7 @@ public final class CreateReportLogic {
 
     /**
      * 所有装備一覧のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getItemListHeader() {
@@ -318,7 +314,7 @@ public final class CreateReportLogic {
 
     /**
      * 所有装備一覧の内容
-     * 
+     *
      * @return 内容
      */
     public static List<Comparable[]> getItemListBody() {
@@ -367,7 +363,7 @@ public final class CreateReportLogic {
 
     /**
      * 所有艦娘一覧のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getShipListHeader() {
@@ -378,7 +374,7 @@ public final class CreateReportLogic {
 
     /**
      * 所有艦娘一覧の内容
-     * 
+     *
      * @param specdiff 成長余地
      * @param filter 鍵付きのみ
      * @return 内容
@@ -389,36 +385,21 @@ public final class CreateReportLogic {
         List<Comparable[]> body = new ArrayList<Comparable[]>();
         ShipItemListener script = ShipItemProxy.get();
         script.begin(specdisp == 0, filter, specdisp);
-        int exp = 0;
         for (ShipDto ship : GlobalContext.getShipMap().values()) {
             if ((filter != null) && !shipFilter(ship, filter, missionSet)) {
                 continue;
             }
-            exp += ship.getExp();
             body.add(ArrayUtils.addAll(new Comparable[] {
                     new TableRowHeader(1, ship)
             }, script.body(ship)));
         }
-        String expString = String.valueOf(exp);
-        Arrays.stream(ApplicationMain.main.getShipTables()).filter(Objects::nonNull).forEach(shipTable -> {
-            Optional.ofNullable(shipTable).ifPresent(table -> {
-                Optional.ofNullable(table.getShell()).ifPresent(shell -> {
-                    ShipFilterComposite composite = (ShipFilterComposite) shell.getChildren()[0]
-                            .getShell()
-                            .getChildren()[0]
-                            .getShell()
-                            .getChildren()[0];
-                    composite.setFleetExp("累積経験値:" + expString);
-                });
-            });
-        });
         script.end();
         return body;
     }
 
     /**
      * 遠征結果のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getMissionResultHeader() {
@@ -538,7 +519,7 @@ public final class CreateReportLogic {
 
     /**
      * 資材のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getMaterialHeader() {
@@ -574,7 +555,7 @@ public final class CreateReportLogic {
 
     /**
      * ロストログのヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getLostHeader() {
@@ -605,7 +586,7 @@ public final class CreateReportLogic {
 
     /**
      * 遠征一覧のヘッダー
-     * 
+     *
      * @return ヘッダー
      */
     public static String[] getMissionHeader() {
@@ -615,7 +596,7 @@ public final class CreateReportLogic {
 
     /**
      * 遠征一覧の内容
-     * 
+     *
      * @param fleetid 遠征艦隊（2～4）
      * @return 内容
      */
@@ -635,7 +616,7 @@ public final class CreateReportLogic {
 
     /**
      * 報告書をCSVファイルに書き込む(最初の列を取り除く)
-     * 
+     *
      * @param file ファイル
      * @param header ヘッダー
      * @param body 内容
@@ -655,7 +636,7 @@ public final class CreateReportLogic {
 
     /**
      * 報告書をCSVファイルに書き込む
-     * 
+     *
      * @param file ファイル
      * @param header ヘッダー
      * @param body 内容
@@ -680,7 +661,7 @@ public final class CreateReportLogic {
 
     /**
      * 艦娘をフィルタします
-     * 
+     *
      * @param ship 艦娘
      * @param filter フィルターオブジェクト
      * @return フィルタ結果
@@ -804,78 +785,7 @@ public final class CreateReportLogic {
             }
         }
 
-        if (filter.groupMode == 2) {
-            if (Objects.isNull(filter.filterList)) return true;
-            // 特殊フィルタ
-            return filter.filterList.stream().allMatch(content -> {
-                switch (content.type) {
-                    case ID:
-                        return content.sign.compareBySign(ship.getId(), content.value);
-                    case LV:
-                        return content.sign.compareBySign(ship.getLv(), content.value);
-                    case COND:
-                        return content.sign.compareBySign(ship.getCond(), content.value);
-                    case REPAIR:
-                        return content.sign.compareBySign(ship.getMaxhp() - ship.getNowhp(), content.value);
-                    case FIRE_POWER:
-                        return content.sign.compareBySign(ship.getKaryoku(), content.value);
-                    case TORPEDO:
-                        return content.sign.compareBySign(ship.getRaisou(), content.value);
-                    case AA:
-                        return content.sign.compareBySign(ship.getTaiku(), content.value);
-                    case ARMOR:
-                        return content.sign.compareBySign(ship.getSoukou(), content.value);
-                    case NIGHT_BATTLE:
-                        return content.sign.compareBySign(ship.getYasenPower(), content.value);
-                    case ASW:
-                        return content.sign.compareBySign(ship.getTaisen(), content.value);
-                    case EVASION:
-                        return content.sign.compareBySign(ship.getKaihi(), content.value);
-                    case LOS:
-                        return content.sign.compareBySign(ship.getSakuteki(), content.value);
-                    case LUCK:
-                        return content.sign.compareBySign(ship.getLucky(), content.value);
-                    case LOCK:
-                        return ship.getLocked() == content.enabledType.get(0);
-                    case DOCK:
-                        if (content.enabledType.get(0)) {
-                            return (ship.getDocktime() > 0) && GlobalContext.isNdock(ship.getId());
-                        } else {
-                            return !GlobalContext.isNdock(ship.getId());
-                        }
-                    case EXPEDITION:
-                        return missionSet.contains(ship.getId()) == content.enabledType.get(0);
-                    case EXPANSION:
-                        return ship.hasSlotEx() == content.enabledType.get(0);
-                    case SHIP_TYPE:
-                        int count = (int) AppConstants.SHIP_TYPE_INFO.keySet().stream()
-                                .filter(stype -> AppConstants.SHIP_TYPE_INFO.get(stype).equals("#"))
-                                .filter(stype -> stype < ship.getStype()).count();
-                        return content.enabledType.get(ship.getStype() - count - 1);
-                    case FLEET:
-                        if(StringUtils.isEmpty(ship.getFleetid())){
-                            return content.enabledType.get(0);
-                        } else {
-                            return content.enabledType.get(Integer.parseInt(ship.getFleetid()));
-                        }
-                    case DAMAGED:
-                        // 大破 & 中破 & 小破 & 健在
-                        return (content.enabledType.get(3) && ship.isBadlyDamage())
-                                || (content.enabledType.get(2) && !ship.isBadlyDamage() && ship.isHalfDamage())
-                                || (content.enabledType.get(1) && !ship.isBadlyDamage() && !ship.isHalfDamage() && ship.isSlightDamage())
-                                || (content.enabledType.get(0) && !ship.isBadlyDamage() && !ship.isHalfDamage() && !ship.isSlightDamage() && !ship.isSunk());
-                    case SPEED:
-                        return (content.enabledType.get(0) && ship.getSoku() == 5)
-                                || (content.enabledType.get(1) && ship.getSoku() == 10)
-                                || (content.enabledType.get(2) && ship.getSoku() == 15)
-                                || (content.enabledType.get(3) && ship.getSoku() == 20);
-                    case SALLY_AREA:
-                        return IntStream.rangeClosed(0,6).anyMatch(i -> content.enabledType.get(i) && ship.getSallyArea() == i);
-                }
-                return true;
-            });
-        }
-        else if (filter.groupMode == 1) {
+        if (filter.groupMode == 1) {
             // 艦種でフィルタ
             if ((filter.enabledType != null) &&
                     (filter.enabledType.length > ship.getStype()) &&
@@ -914,7 +824,7 @@ public final class CreateReportLogic {
 
     /**
      * 海戦・ドロップ報告書を書き込む
-     * 
+     *
      * @param dto 海戦・ドロップ報告
      */
     public static void storeBattleResultReport(BattleExDto dto) {
@@ -933,7 +843,7 @@ public final class CreateReportLogic {
 
     /**
      * 建造報告書を書き込む
-     * 
+     *
      * @param dto 建造報告
      */
     public static void storeCreateShipReport(GetShipDto dto) {
@@ -952,7 +862,7 @@ public final class CreateReportLogic {
 
     /**
      * 建造報告書を読み込む
-     * 
+     *
      * @return 建造報告
      */
     public static List<GetShipDto> loadCreateShipReport() {
@@ -972,7 +882,7 @@ public final class CreateReportLogic {
 
     /**
      * 開発報告書を書き込む
-     * 
+     *
      * @param dto 開発報告
      */
     public static void storeCreateItemReport(CreateItemDto dto) {
@@ -991,7 +901,7 @@ public final class CreateReportLogic {
 
     /**
      * 開発報告書を読み込む
-     * 
+     *
      * @return 開発報告
      */
     public static List<CreateItemDto> loadCreateItemReport() {
@@ -1011,7 +921,7 @@ public final class CreateReportLogic {
 
     /**
      * 遠征報告書を書き込む
-     * 
+     *
      * @param dto 遠征結果
      */
     public static void storeMissionReport(MissionResultDto dto) {
@@ -1030,7 +940,7 @@ public final class CreateReportLogic {
 
     /**
      * 遠征報告書を読み込む
-     * 
+     *
      * @return 遠征報告
      */
     public static List<MissionResultDto> loadMissionReport() {
@@ -1050,7 +960,7 @@ public final class CreateReportLogic {
 
     /**
      * 資材ログを書き込む
-     * 
+     *
      * @param material 資材
      */
     public static void storeMaterialReport(MaterialDto material, BasicInfoDto basic) {
@@ -1069,7 +979,7 @@ public final class CreateReportLogic {
 
     /**
      * 解体・廃棄ログを書き込む
-     * 
+     *
      * @param dtoList 解体・廃棄情報
      */
     public static void storeLostReport(List<LostEntityDto> dtoList) {
@@ -1088,7 +998,7 @@ public final class CreateReportLogic {
 
     /**
      * 書き込み先のファイルを返します
-     * 
+     *
      * @param name ファイル名
      * @param altername 代替ファイル名
      * @return File
@@ -1117,7 +1027,7 @@ public final class CreateReportLogic {
 
     /**
      * alternativeファイルを本体にマージして削除します
-     * 
+     *
      * @param report ファイル本体
      * @param alt_report alternativeファイル
      * @return
