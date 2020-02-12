@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import logbook.constants.AppConstants;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -62,19 +60,6 @@ public class BattleResultDto extends AbstractDto {
         this.dropItemName = dto.getDropItemName();
         this.noSpaceForShip = (dto.getExVersion() >= 1) && (dto.getShipSpace() == 0);
         this.extData = extData;
-    }
-
-    private boolean hasTaihaInFleet(int[] nowhp, int[] maxhp) {
-        if ((nowhp == null) || (maxhp == null)) {
-            return false;
-        }
-        for (int i = 0; i < nowhp.length; ++i) {
-            double rate = (double) nowhp[i] / (double) maxhp[i];
-            if (rate <= AppConstants.BADLY_DAMAGE) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

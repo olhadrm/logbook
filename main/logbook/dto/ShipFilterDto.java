@@ -2,8 +2,6 @@ package logbook.dto;
 
 import logbook.config.bean.ShipGroupBean;
 
-import java.util.*;
-
 /**
  * 所有艦娘一覧で使用するフィルター
  */

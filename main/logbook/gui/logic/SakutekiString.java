@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package logbook.gui.logic;
 

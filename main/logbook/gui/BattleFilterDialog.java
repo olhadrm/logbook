@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package logbook.gui;
 
@@ -16,7 +16,6 @@ import logbook.internal.LoggerHolder;
 import logbook.internal.TimeSpanKind;
 import logbook.util.ReportUtils;
 
-import logbook.util.SwtUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,9 +30,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /**

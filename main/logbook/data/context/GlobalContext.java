@@ -2020,7 +2020,7 @@ public final class GlobalContext {
                     if (destroyItem)
                     {
                         for (int item : ship.getItemId()) {
-                            removeSlotItem(item);
+                            itemMap.remove(item);
                         }
                     }
                     // 艦娘を外す
@@ -2713,7 +2713,7 @@ public final class GlobalContext {
 
     /**
      * 遠征情報を処理します
-     * 
+     *
      * @param data
      */
     private static void doMission(Data data, JsonValue json) {

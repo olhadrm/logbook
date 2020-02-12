@@ -3,10 +3,8 @@ package logbook.dto;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
@@ -116,7 +114,7 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
 
     /**
      * コンストラクター
-     * 
+     *
      * @param object JSON Object
      */
     public ShipDto(JsonObject object) {
@@ -251,7 +249,7 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
 
     /**
      * 艦隊IDを設定する
-     * 
+     *
      * @param fleetid 艦隊ID
      */
     public void setFleetid(String fleetid) {

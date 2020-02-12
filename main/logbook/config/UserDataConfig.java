@@ -1,7 +1,6 @@
 package logbook.config;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,7 +16,7 @@ import logbook.util.BeanUtils;
 
 /**
  * ユーザーゲームデータを保存・復元します
- * 
+ *
  */
 public class UserDataConfig {
     /** ロガー */
@@ -48,7 +47,7 @@ public class UserDataConfig {
 
     /**
      * ユーザーゲームデータをファイルから読み込みます
-     * 
+     *
      * @param properties
      * @return
      */

@@ -45,7 +45,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 
 /**
  * テーブルで構成されるダイアログの基底クラス
@@ -433,7 +432,6 @@ public abstract class AbstractTableDialog extends WindowBase implements EventLis
             Comparable[] line = this.body.get(i);
             TableRowHeader rowHeader = (TableRowHeader) line[0];
             rowHeader.setNumber(i + 1); // ソート順に関係ない番号
-            TableItem item = creator.create(this.table, line, i);
         }
         creator.end();
     }
@@ -752,7 +750,7 @@ public abstract class AbstractTableDialog extends WindowBase implements EventLis
 
     /**
      * テーブル行を作成するクリエイターを返します
-     * 
+     *
      * @return TableItemCreator
      */
     protected abstract TableItemCreator getTableItemCreator();
@@ -803,7 +801,7 @@ public abstract class AbstractTableDialog extends WindowBase implements EventLis
 
     /**
      * テーブルをソートします
-     * 
+     *
      * @param headerColumn ソートするカラム
      */
     protected void sortTableItems(TableColumn headerColumn) {
@@ -812,7 +810,7 @@ public abstract class AbstractTableDialog extends WindowBase implements EventLis
 
     /**
      * テーブルをソートします
-     * 
+     *
      * @param index カラムインデックス
      * @param headerColumn ソートするカラム
      */
@@ -982,7 +980,7 @@ public abstract class AbstractTableDialog extends WindowBase implements EventLis
 
         /**
          * 比較する
-         * 
+         *
          * @param o1
          * @param o2
          * @param order

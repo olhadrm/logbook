@@ -54,9 +54,6 @@ import logbook.scripting.QuestProxy;
 import logbook.scripting.ShipItemListener;
 import logbook.scripting.ShipItemProxy;
 import logbook.util.ReportUtils;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * 各種報告書を作成します
