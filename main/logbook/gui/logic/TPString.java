@@ -40,7 +40,8 @@ public class TPString implements Comparable<TPString> {
     }
 
     public TPString(List<ShipDto> ships) {
-        ships.stream().map(ship -> new ShipParam(ship)).forEach(param -> this.add(param));
+        ships.stream().filter(ship -> !ship.isBadlyDamage())
+            .map(ship -> new ShipParam(ship)).forEach(param -> this.add(param));
         this.calc();
     }
 
@@ -143,7 +144,6 @@ public class TPString implements Comparable<TPString> {
 
     @Override
     public int compareTo(TPString tp) {
-        // TODO 自動生成されたメソッド・スタブ
         return Integer.compare(this.getValue(), tp.getValue());
     }
 }
