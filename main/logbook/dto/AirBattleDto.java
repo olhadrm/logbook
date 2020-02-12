@@ -169,9 +169,35 @@ public class AirBattleDto {
             case 24:
                 return "24:高角砲/機銃(非集中)";
             case 25:
-                return "25:新噴進砲/対空電探/三式弾";
+                return "25:噴進砲改二/電探/三式弾";
+            case 26:
+                return "26:高角砲+増設機銃/電探";
             case 28:
                 return "28:新噴進砲/対空電探";
+            case 29:
+                return "29:高角砲/電探";
+            case 30:
+                return "30:高角砲x3";
+            case 31:
+                return "31:高角砲x2";
+            case 32:
+                return "32:ロケランx2 or FCR/ポンポン砲 or ロケラン/ポンポン砲";
+            case 33:
+                return "33:高角砲/機銃(非集中)";
+            case 34:
+                return "34:Fletcher砲改+GFCSx2";
+            case 35:
+                return "35:Fletcher砲改+GFCS/Fletcher砲改";
+            case 36:
+                return "36:Fletcher砲改x2/GFCS";
+            case 37:
+                return "37:Fletcher砲改x2";
+            case 39:
+                return "39:Atlanta砲+GFCS/Atlanta砲";
+            case 40:
+                return "40:Atlanta砲x2/GFCS";
+            case 41:
+                return "41:Atlanta砲x2";
         }
         return "不明(" + id + ")";
     }

@@ -63,6 +63,10 @@ public class CalcAA {
             this.put(35, new AA_CI(6, 1.55)); // 5inch単装砲 Mk.30改+GFCS Mk.37/5inch単装砲 Mk.30改(Johnston)
             this.put(36, new AA_CI(6, 1.55)); // 5inch単装砲 Mk.30改x2/GFCS Mk.37(Johnston)
             this.put(37, new AA_CI(4, 1.45)); // 5inch単装砲 Mk.30改x2(Johnston)
+            this.put(38, new AA_CI(0, 1));    //
+            this.put(39, new AA_CI(10, 1.7)); // GFCS Mk.37+5inch連装両用砲(集中配備)/5inch連装両用砲(集中配備)(Atlanta)
+            this.put(40, new AA_CI(10, 1.7)); // 5inch連装両用砲(集中配備)x2/GFCS Mk.37(Atlanta)
+            this.put(41, new AA_CI(9, 1.65)); // 5inch連装両用砲(集中配備)x2(Atlanta)
         }
     };
 
