@@ -3,10 +3,12 @@ package logbook.gui.widgets;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import javax.annotation.CheckForNull;
@@ -296,6 +298,10 @@ public class FleetComposite extends Composite {
         }
         // 艦隊合計Lv
         int totallv = 0;
+        // 艦隊合計火力値(装備込)
+        double totalFirepower = 0;
+        // 艦隊合計索敵値(装備込)
+        int totalLOS = 0;
         // 艦隊合計対潜値(装備込)
         int totaltaisen = 0;
         // 艦隊合計対空値(装備込)
@@ -343,8 +349,32 @@ public class FleetComposite extends Composite {
             float fuelraito = fuelmax != 0 ? (float) fuel / (float) fuelmax : 1f;
             // 艦隊合計Lv
             totallv += ship.getLv();
+            List<ItemDto> itemList = new ArrayList<>(ship.getItem2());
+            itemList.add(ship.getSlotExItem());
+            // 艦隊合計火力値(装備込)
+            totalFirepower += ship.getKaryoku() + itemList.stream()
+                .filter(Objects::nonNull)
+                .mapToDouble(item -> {
+                    switch(item.getType2()) {
+                        /** 小口径主砲 */
+                        case 1: return 0.5 * Math.sqrt(item.getLevel());
+                        /** 中口径主砲 */
+                        case 2: return Math.sqrt(item.getLevel());
+                        /** 大口径主砲 */
+                        case 3: return 0.75 * Math.sqrt(item.getLevel());
+                        /** 副砲 */
+                        case 4: return 0.15 * item.getLevel();
+                    }
+                    return 0;
+                }).sum();
+            // 艦隊合計索敵値(装備込)
+            totalLOS += ship.getSakuteki();
             // 艦隊合計対潜値(装備込)
-            totaltaisen += ship.getTaisen();
+            int[] exceptionItems = {10, 11, 41};
+            totaltaisen += ship.getTaisen() - itemList.stream()
+                .filter(Objects::nonNull)
+                .filter(item -> Arrays.asList(exceptionItems).contains(item.getType2()))
+                .mapToInt(item -> item.getParam().getTaisen()).sum();
             // 艦隊合計対空値(装備込)
             totaltaiku += ship.getTaiku();
             // 損失艦載機
@@ -786,11 +816,8 @@ public class FleetComposite extends Composite {
                     MessageFormat.format(AppConstants.MESSAGE_AA, calcAA.getFleetAirDefenseValue(aaShips,true,1)), null);
             this.addStyledText(this.message, "\n", null);
         }
-        // 合計対潜値(装備込)
-        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TAISEN, totaltaisen), null);
-        this.addStyledText(this.message, "", null);
-        // 合計対空値(装備込)
-        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TAIKU, totaltaiku), null);
+        // 遠征
+        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_EXPEDITION, totalFirepower, totaltaiku, totaltaisen, totalLOS), null);
         this.addStyledText(this.message, "\n", null);
         // 合計Lv
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TOTAL_LV, totallv), null);
