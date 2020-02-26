@@ -89,12 +89,14 @@ public class SeikuString implements Comparable<SeikuString> {
 
                         // 改修効果 艦戦は★×0.2、爆戦は★×0.25
                         switch (type) {
-                        case 0: // 艦上戦闘機 （水上戦闘機は不明だけど一応入れておく）
-                            tyku += item.getLevel() * 0.2;
-                            break;
-                    	case 1: // 爆戦（爆戦でない艦上爆撃機や艦上攻撃機、噴式戦闘爆撃機は不明だけど一応入れておく）
-                            tyku += item.getLevel() * 0.25;
-                            break;
+                            case 0: // 艦上戦闘機 （水上戦闘機は不明だけど一応入れておく）
+                                tyku += item.getLevel() * 0.2;
+                                break;
+                            case 1: // 爆戦（爆戦でない艦上爆撃機や艦上攻撃機、噴式戦闘爆撃機は不明だけど一応入れておく）
+                                if (item.getParam().getTyku() > 0) {
+                                    tyku += item.getLevel() * 0.25;
+                                }
+                                break;
                         }
 
                         double basePart = tyku * Math.sqrt(onslot);

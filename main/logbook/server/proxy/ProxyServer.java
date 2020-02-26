@@ -136,14 +136,11 @@ public final class ProxyServer {
 
         final String message = sb.toString();
 
-        Display.getDefault().asyncExec(new Runnable() {
-            @Override
-            public void run() {
-                MessageBox box = new MessageBox(ApplicationMain.main.getShell(), SWT.YES | SWT.ICON_ERROR);
-                box.setText("プロキシサーバーが予期せず終了しました");
-                box.setMessage(message);
-                box.open();
-            }
+        Display.getDefault().asyncExec(() -> {
+            MessageBox box = new MessageBox(ApplicationMain.main.getShell(), SWT.YES | SWT.ICON_ERROR);
+            box.setText("プロキシサーバーが予期せず終了しました");
+            box.setMessage(message);
+            box.open();
         });
     }
 }

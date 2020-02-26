@@ -2,6 +2,7 @@ package logbook.dto;
 
 import logbook.config.AppConfig;
 import logbook.data.context.GlobalContext;
+import logbook.dto.AirbaseDto.AirCorpsDto.SquadronDto;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -10,6 +11,43 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AirbaseDto {
+
+    public static AirPower getHighAltitudeInterceptionAirPower(Map<Integer, AirbaseDto.AirCorpsDto> airCorps) {
+        int rocket = airCorps.values().stream().filter(airCorp -> {
+            return airCorp.actionKind == 2;
+        }).mapToInt(airCorp -> airCorp.squadrons.values().stream().map(SquadronDto::getSlotid)
+            .map(GlobalContext::getItem)
+            .map(ItemDto::getSlotitemId).filter(id -> {
+                switch(id) {
+                    case 350:
+                    case 351:
+                    case 352:
+                        return true;
+                }
+                return false;
+            }).toArray().length
+        ).sum();
+        double bonus = 0.5;
+
+        if (rocket >= 3) {
+            bonus = 1.2;
+        } else if (rocket == 2) {
+            bonus = 1.1;
+        } else if (rocket == 1) {
+            bonus = 0.8;
+        }
+
+        AirPower airPower = airCorps.values().stream().filter(airCorp -> {
+            return airCorp.actionKind == 2;
+        }).map(airCorp -> {
+            return airCorp.getAirPower();
+        }).reduce(new AirPower(0), (sum, elm) -> {
+            sum.add(elm);
+            return sum;
+        });
+
+        return new AirPower((int) (airPower.getMin() * bonus), (int) (airPower.getMax() * bonus));
+    }
 
     private Map<Integer, Map<Integer, AirCorpsDto>> airbase;
 
@@ -169,7 +207,7 @@ public class AirbaseDto {
                         skilledBonus = new int[]{INTERNAL_SKILLED_TABLE[item.getAlv()], INTERNAL_SKILLED_TABLE[item.getAlv() + 1] - 1};
                         break;
                     case 7: // 艦上爆撃機、夜間爆撃機?
-                        base = (item.getParam().getTaiku() + 0.25 * item.getLevel()) * Math.sqrt(squadron.count);
+                        base = (item.getParam().getTaiku() + (item.getParam().getTaiku() > 0 ? 0.25 * item.getLevel() : 0)) * Math.sqrt(squadron.count);
                         constSkilledBonus = SKILLED_BONUS_TABLE[1][item.getAlv()];
                         skilledBonus = new int[]{INTERNAL_SKILLED_TABLE[item.getAlv()], INTERNAL_SKILLED_TABLE[item.getAlv() + 1] - 1};
                         break;
@@ -228,70 +266,6 @@ public class AirbaseDto {
                 power.setMax(power.getMax() * defenseBonus / 100);
             }
             return power;
-        }
-
-        public class AirPower {
-
-            private int min;
-            private int max;
-
-            AirPower(int mid) {
-                this(mid, mid);
-            }
-
-            AirPower(int min, int max) {
-                this.min = min;
-                this.max = max;
-            }
-
-            public void add(AirPower air) {
-                this.add(air.min, air.max);
-            }
-
-            public void add(int min, int max) {
-                this.addMin(min);
-                this.addMax(max);
-            }
-
-            public void addMin(int min) {
-                this.min += min;
-            }
-
-            public void addMax(int max) {
-                this.max += max;
-            }
-
-            public int getMin() {
-                return min;
-            }
-
-            public void setMin(int min) {
-                this.min = min;
-            }
-
-            public int getMax() {
-                return max;
-            }
-
-            public void setMax(int max) {
-                this.max = max;
-            }
-
-            @Override
-            public String toString() {
-                int method = AppConfig.get().getSeikuMethod();
-                switch (method) {
-                    case 0: // 艦載機素の制空値
-                        return Integer.toString(this.max);
-                    case 1: // 制空推定値範囲
-                    case 2: // 制空推定値範囲(艦載機素の制空値 + 熟練度ボーナス推定値)
-                        return this.min == this.max ? Integer.toString(this.max) : this.min + "-" + this.max;
-                    case 3: // 制空推定値中央
-                    case 4: // 制空推定値中央(艦載機素の制空値 + 熟練度ボーナス推定値)
-                        return Integer.toString((this.min + this.max) / 2);
-                }
-                return Integer.toString(this.max);
-            }
         }
 
         public static class Distance {

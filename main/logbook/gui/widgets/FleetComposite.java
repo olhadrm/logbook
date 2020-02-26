@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
 
@@ -301,11 +303,11 @@ public class FleetComposite extends Composite {
         // 艦隊合計火力値(装備込)
         double totalFirepower = 0;
         // 艦隊合計索敵値(装備込)
-        int totalLOS = 0;
+        double totalLOS = 0;
         // 艦隊合計対潜値(装備込)
-        int totaltaisen = 0;
+        double totaltaisen = 0;
         // 艦隊合計対空値(装備込)
-        int totaltaiku = 0;
+        double totaltaiku = 0;
 
         int dockIndex = Integer.parseInt(dock.getId()) - 1;
         CondTiming condTiming = GlobalContext.getCondTiming();
@@ -349,11 +351,11 @@ public class FleetComposite extends Composite {
             float fuelraito = fuelmax != 0 ? (float) fuel / (float) fuelmax : 1f;
             // 艦隊合計Lv
             totallv += ship.getLv();
-            List<ItemDto> itemList = new ArrayList<>(ship.getItem2());
-            itemList.add(ship.getSlotExItem());
+            List<ItemDto> _itemList = new ArrayList<>(ship.getItem2());
+            _itemList.add(ship.getSlotExItem());
+            List<ItemDto> itemList = _itemList.stream().filter(Objects::nonNull).collect(Collectors.toList());
             // 艦隊合計火力値(装備込)
             totalFirepower += ship.getKaryoku() + itemList.stream()
-                .filter(Objects::nonNull)
                 .mapToDouble(item -> {
                     switch(item.getType2()) {
                         /** 小口径主砲 */
@@ -364,19 +366,47 @@ public class FleetComposite extends Composite {
                         case 3: return 0.75 * Math.sqrt(item.getLevel());
                         /** 副砲 */
                         case 4: return 0.15 * item.getLevel();
+                        /** 機銃 */
+                        case 21: return 0.5 * Math.sqrt(item.getLevel());
                     }
                     return 0;
                 }).sum();
             // 艦隊合計索敵値(装備込)
-            totalLOS += ship.getSakuteki();
+            totalLOS += ship.getSakuteki() + itemList.stream()
+                .mapToDouble(item -> {
+                    switch(item.getType3()) {
+                        /** 電探 */
+                        case 11: return Math.sqrt(item.getLevel());
+                    }
+                    return 0;
+                }).sum();
             // 艦隊合計対潜値(装備込)
             Integer[] exceptionItems = {10, 11, 41};
-            totaltaisen += ship.getTaisen() - itemList.stream()
-                .filter(Objects::nonNull)
-                .filter(item -> Arrays.asList(exceptionItems).contains(item.getType2()))
-                .mapToInt(item -> item.getParam().getTaisen()).sum();
+            totaltaisen += ship.getTaisen()
+                 - itemList.stream()
+                    .filter(item -> Arrays.asList(exceptionItems).contains(item.getType2()))
+                    .mapToInt(item -> item.getParam().getTaisen()).sum()
+                 + itemList.stream()
+                    .mapToDouble(item -> {
+                        switch(item.getType2()) {
+                            /** ソナー */
+                            case 14:
+                            /** 爆雷 */
+                            case 15: return Math.sqrt(item.getLevel());
+                        }
+                        return 0;
+                    }).sum();
             // 艦隊合計対空値(装備込)
-            totaltaiku += ship.getTaiku();
+            totaltaiku += ship.getTaiku() + itemList.stream()
+                .mapToDouble(item -> {
+                    switch(item.getType3()) {
+                        /** 機銃 */
+                        case 15: return Math.sqrt(item.getLevel());
+                        /** 高角砲 */
+                        case 16: return 0.3 * item.getLevel();
+                    }
+                    return 0;
+                }).sum();
             // 損失艦載機
             int[] maxeq = ship.getMaxeq();
             int[] onslot = ship.getOnSlot();

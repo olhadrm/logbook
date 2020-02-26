@@ -51,6 +51,9 @@ public final class AppConfigBean {
     /** 母港タブの基地航空隊表示 */
     private boolean showAirbase = false;
 
+    /** 母港タブのマップHP表示 */
+    private boolean showMapHpInfo = false;
+
     /** 音量 */
     private float soundLevel = 0.85f;
 
@@ -400,6 +403,9 @@ public final class AppConfigBean {
 
     /** 所持艦隊晒しの対象をロックしている艦限定にするか */
     private boolean useLockedOnlyFleetFormat = false;
+
+    /** 艦隊分析の対象をロックしている艦/装備に限定するか */
+    private boolean useLockedOnlyAnalysisFormat = false;
 
     private static RGB cloneRGB(RGB rgb) {
         return new RGB(rgb.red, rgb.green, rgb.blue);
@@ -2268,6 +2274,20 @@ public final class AppConfigBean {
         this.useLockedOnlyFleetFormat = useLockedOnlyFleetFormat;
     }
 
+    /**
+     * @return useLockedOnlyAnalysisFormat
+     */
+    public boolean isUseLockedOnlyAnalysisFormat() {
+        return this.useLockedOnlyAnalysisFormat;
+    }
+
+    /**
+     * @param useLockedOnlyAnalysisFormat セットする useLockedOnlyAnalysisFormat
+     */
+    public void setUseLockedOnlyAnalysisFormat(boolean useLockedOnlyAnalysisFormat) {
+        this.useLockedOnlyAnalysisFormat = useLockedOnlyAnalysisFormat;
+    }
+
     public double getBunkitenKeisu() {
         return this.bunkitenKeisu;
     }
@@ -2282,5 +2302,13 @@ public final class AppConfigBean {
 
     public void setShowAirbase(boolean showAirbase) {
         this.showAirbase = showAirbase;
+    }
+
+    public boolean isShowMapHpInfo() {
+        return this.showMapHpInfo;
+    }
+
+    public void setShowMapHpInfo(boolean showMapHpInfo) {
+        this.showMapHpInfo = showMapHpInfo;
     }
 }

@@ -133,31 +133,28 @@ public final class ReverseProxyServlet extends ProxyServlet {
                 final String contentEncoding = (String) request.getAttribute(Filter.CONTENT_ENCODING);
                 final String serverName = request.getServerName();
 
-                Display.getDefault().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            UndefinedData decodedData = rawData.decode(contentEncoding);
+                Display.getDefault().asyncExec(() -> {
+                    try {
+                        UndefinedData decodedData = rawData.decode(contentEncoding);
 
-                            // キャプチャしたバイト配列は何のデータかを決定する
-                            Data data = decodedData.toDefinedData();
-                            if (data.getDataType() != DataType.UNDEFINED) {
-                                try {
-                                    // 定義済みのデータの場合にキューに追加する
-                                    GlobalContext.updateContext(data);
+                        // キャプチャしたバイト配列は何のデータかを決定する
+                        Data data = decodedData.toDefinedData();
+                        if (data.getDataType() != DataType.UNDEFINED) {
+                            try {
+                                // 定義済みのデータの場合にキューに追加する
+                                GlobalContext.updateContext(data);
 
-                                } catch (Exception e) {
-                                    LOG.get().warn("データ更新に失敗", e);
-                                }
-
-                                // サーバー名が不明の場合、サーバー名をセットする
-                                if (!Filter.isServerDetected()) {
-                                    Filter.setServerName(serverName);
-                                }
+                            } catch (Exception e) {
+                                LOG.get().warn("データ更新に失敗", e);
                             }
-                        } catch (Exception e) {
-                            LOG.get().warn("受信データ処理に失敗", e);
+
+                            // サーバー名が不明の場合、サーバー名をセットする
+                            if (!Filter.isServerDetected()) {
+                                Filter.setServerName(serverName);
+                            }
                         }
+                    } catch (Exception e) {
+                        LOG.get().warn("受信データ処理に失敗", e);
                     }
                 });
             }

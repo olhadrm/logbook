@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
 import javax.json.JsonArray;
@@ -50,6 +51,7 @@ import logbook.dto.ItemInfoDto;
 import logbook.dto.KdockDto;
 import logbook.dto.LostEntityDto;
 import logbook.dto.MapCellDto;
+import logbook.dto.MapHpInfoDto;
 import logbook.dto.MaterialDto;
 import logbook.dto.MissionResultDto;
 import logbook.dto.NdockDto;
@@ -198,6 +200,9 @@ public final class GlobalContext {
 
     /** 基地航空隊 */
     private static AirbaseDto airbase;
+
+    /** 海域ゲージ */
+    private static List<MapHpInfoDto> mapHpInfo;
 
     /** ShipParameterRecord更新ハンドラ */
     private static UpdateShipParameter updateShipParameter = new UpdateShipParameter();
@@ -1035,6 +1040,14 @@ public final class GlobalContext {
      */
     public static AirbaseDto getAirbase() {
         return airbase;
+    }
+
+    /**
+     * 海域ゲージを取得
+     * @return
+     */
+    public static List<MapHpInfoDto> getMapHpInfo() {
+        return mapHpInfo;
     }
 
     /**
@@ -2697,6 +2710,27 @@ public final class GlobalContext {
                         tip.setVisible(true);
                         Sound.randomWarningPlay();
                     }
+
+                    mapHpInfo = apidata.stream().map(JsonObject.class::cast).map(api -> {
+                        int mapId = api.getInt("api_id");
+                        int gaugeType = api.containsKey("api_gauge_type") ? api.getInt("api_gauge_type") : -1;
+                        int gaugeIndex = api.containsKey("api_gauge_num") ? api.getInt("api_gauge_num") : -1;
+
+                        if (api.containsKey("api_defeat_count") && api.containsKey("api_required_defeat_count")) {
+                            int defeatCount = api.getInt("api_defeat_count");
+                            int requiredDefeatCount = api.getInt("api_required_defeat_count");
+                            return new MapHpInfoDto(mapId, -1, defeatCount, requiredDefeatCount, -1, -1, gaugeIndex, gaugeType);
+                        }
+                        if (api.containsKey("api_eventmap")) {
+                            JsonObject eventMap = api.getJsonObject("api_eventmap");
+                            int nowMapHp = eventMap.containsKey("api_now_maphp") ? eventMap.getInt("api_now_maphp") : -1;
+                            int maxMapHp = eventMap.containsKey("api_max_maphp") ? eventMap.getInt("api_max_maphp") : -1;
+                            int difficulty = eventMap.containsKey("api_selected_rank") ? eventMap.getInt("api_selected_rank") : -1;
+                            return new MapHpInfoDto(mapId, difficulty, -1, -1, nowMapHp, maxMapHp, gaugeIndex, gaugeType);
+                        }
+                        return new MapHpInfoDto(mapId, -1, -1, -1, -1, -1, gaugeIndex, gaugeType);
+                    }).collect(Collectors.toList());
+                    ApplicationMain.main.updateMapHpInfo();
                 }
                 JsonValue api_air_base = ((JsonObject) json).get("api_air_base");
                 if (api_air_base instanceof JsonArray) {

@@ -24,7 +24,7 @@ public class AppConstants {
     public static final String SUFFIX = "拡張版";
 
     /** バージョン */
-    public static final String VERSION = "2.5.7.1";
+    public static final String VERSION = "2.5.7.2";
 
     /** ホームページ */
     public static final URI HOME_PAGE_URI = URI.create("http://nekopanda.blog.jp/");
@@ -347,7 +347,7 @@ public class AppConstants {
     public static final String MESSAGE_TAIKU = "対空:{0}。";
 
     /** メッセージ 遠征[火力:{0} / 対空:{1} / 対潜:{2} / 索敵:{3}] */
-    public static final String MESSAGE_EXPEDITION = "遠征[火力:{0,number,0.0} / 対空:{1} / 対潜:{2} / 索敵:{3}]。";
+    public static final String MESSAGE_EXPEDITION = "遠征[火力:{0,number,0.0} / 対空:{1,number,0.0} / 対潜:{2,number,0.0} / 索敵:{3,number,0.0}]。";
 
     /** メッセージ  艦隊合計Lv:{0} */
     public static final String MESSAGE_TOTAL_LV = "艦隊合計Lv:{0}。";

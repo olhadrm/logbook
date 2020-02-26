@@ -32,8 +32,8 @@ import logbook.gui.listener.TrayItemMenuListener;
 import logbook.gui.listener.TraySelectionListener;
 import logbook.gui.logic.ColorManager;
 import logbook.gui.logic.DeckBuilder;
+import logbook.gui.logic.FleetAnalysis;
 import logbook.gui.logic.FleetFormatter;
-import logbook.gui.logic.ItemFormatter;
 import logbook.gui.logic.LayoutLogic;
 import logbook.gui.logic.PushNotify;
 import logbook.gui.logic.Sound;
@@ -64,8 +64,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.wb.swt.SWTResourceManager;
-
-import com.melloware.jintellitype.HotkeyListener;
 
 /**
  * メイン画面
@@ -326,6 +324,10 @@ public final class ApplicationMain extends WindowBase {
     /** 基地航空隊 **/
     private Composite airbaseGroup;
     private Combo airbaseCombo;
+
+    /** 海域ゲージ */
+    private Composite mapHpInfoGroup;
+    private Combo mapHpInfoCombo;
 
     /** エラー表示 **/
     private Label errorLabel;
@@ -1003,7 +1005,7 @@ public final class ApplicationMain extends WindowBase {
         this.admiralExpLabel = new Label(this.resultRecordGroup, SWT.RIGHT);
         this.admiralExpLabel.setText(String.format("%d exp.",0));
         GridData gdAdmiralExp = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-        gdAdmiralExp.widthHint = SwtUtils.DPIAwareWidth(75);
+        gdAdmiralExp.widthHint = SwtUtils.DPIAwareWidth(80);
         this.admiralExpLabel.setLayoutData(gdAdmiralExp);
 
         this.airbaseGroup = new Composite(this.mainComposite,SWT.NONE);
@@ -1018,6 +1020,21 @@ public final class ApplicationMain extends WindowBase {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 updateAirbase();
+            }
+        });
+
+        this.mapHpInfoGroup = new Composite(this.mainComposite,SWT.NONE);
+        this.mapHpInfoGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.mapHpInfoGroup.setLayout(SwtUtils.makeGridLayout(1, 1, 1, 3, 3));
+
+        this.mapHpInfoCombo = new Combo(this.mapHpInfoGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        this.mapHpInfoCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.mapHpInfoCombo.add("海域ゲージ");
+        this.mapHpInfoCombo.select(0);
+        this.mapHpInfoCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                updateMapHpInfo();
             }
         });
 
@@ -1045,24 +1062,21 @@ public final class ApplicationMain extends WindowBase {
 
         // メニュー表示
         this.tabFolder.setData("disable-window-menu-this", new Object());
-        this.tabFolder.addListener(SWT.MenuDetect, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                CTabFolder tabFolder = ApplicationMain.this.tabFolder;
-                Point point = ApplicationMain.this.display.map(null,
-                        tabFolder, new Point(event.x, event.y));
-                CTabItem item = tabFolder.getItem(point);
-                if (item != null) {
-                    Object data = item.getData();
-                    if (data instanceof FleetWindow) {
-                        FleetWindow fw = (FleetWindow) data;
-                        fw.showTabMenu();
-                        return;
-                    }
+        this.tabFolder.addListener(SWT.MenuDetect, (Event event) -> {
+            CTabFolder tabFolder = ApplicationMain.this.tabFolder;
+            Point point = ApplicationMain.this.display.map(null,
+                    tabFolder, new Point(event.x, event.y));
+            CTabItem item = tabFolder.getItem(point);
+            if (item != null) {
+                Object data = item.getData();
+                if (data instanceof FleetWindow) {
+                    FleetWindow fw = (FleetWindow) data;
+                    fw.showTabMenu();
+                    return;
                 }
-                // ウィンドウメニューを表示
-                //ApplicationMain.this.getPopupMenu().setVisible(true);
             }
+            // ウィンドウメニューを表示
+            //ApplicationMain.this.getPopupMenu().setVisible(true);
         });
 
         //  ウィンドウの右クリックメニューに追加
@@ -1089,6 +1103,10 @@ public final class ApplicationMain extends WindowBase {
         MenuItem showAirbase = new MenuItem(this.getPopupMenu(), SWT.CHECK);
         showAirbase.setText("基地航空隊を表示");
         this.bindControlToMenuItem(this.airbaseGroup, showAirbase, "ShowAirbase");
+
+        MenuItem showMapHpInfo = new MenuItem(this.getPopupMenu(), SWT.CHECK);
+        showMapHpInfo.setText("海域ゲージを表示");
+        this.bindControlToMenuItem(this.mapHpInfoGroup, showMapHpInfo, "ShowMapHpInfo");
 
         // 縮小表示
         final MenuItem dispsize = new MenuItem(this.getPopupMenu(), SWT.CHECK);
@@ -1171,7 +1189,7 @@ public final class ApplicationMain extends WindowBase {
         /*
         final MenuItem copyDeckBuilderFormat = new MenuItem(copyDeckBuilderMenu, SWT.PUSH);
         copyDeckBuilderFormat.setText("フォーマットをクリップボードにコピー");
-        
+
         copyDeckBuilderFormat.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -1303,7 +1321,6 @@ public final class ApplicationMain extends WindowBase {
         final MenuItem isLockedOnlyFleetFormat = new MenuItem(copyFleetFormatterMenu, SWT.CHECK);
         isLockedOnlyFleetFormat.setText("ロックしている艦限定");
         isLockedOnlyFleetFormat.setSelection(AppConfig.get().isUseLockedOnlyFleetFormat());
-        ;
         isLockedOnlyFleetFormat.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -1317,6 +1334,29 @@ public final class ApplicationMain extends WindowBase {
         rootItemFormatter.setText("艦隊分析ページ");
         Menu copyItemFormatterMenu = new Menu(rootItemFormatter);
 
+        final MenuItem copyShipFormat = new MenuItem(copyItemFormatterMenu, SWT.PUSH);
+        copyShipFormat.setText("艦娘フォーマットをクリップボードにコピー");
+
+        copyShipFormat.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (GlobalContext.getState() == 1) {
+                    boolean isLockedOnlyAnalysisFormat = AppConfig.get().isUseLockedOnlyAnalysisFormat();
+                    Clipboard clipboard = new Clipboard(Display.getDefault());
+                                  clipboard.setContents(new Object[] { new FleetAnalysis().getShipsFormat(isLockedOnlyAnalysisFormat) },
+                            new Transfer[] { TextTransfer.getInstance() });
+                } else {
+                    Shell shell = new Shell(Display.getDefault(), SWT.TOOL);
+                    MessageBox mes = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+                    mes.setText(AppConstants.TITLEBAR_TEXT);
+                    mes.setMessage("情報が不足しています。艦これをリロードしてデータを読み込んでください。");
+                    mes.open();
+                    shell.dispose();
+                }
+            }
+        });
+
+
         final MenuItem copyItemFormat = new MenuItem(copyItemFormatterMenu, SWT.PUSH);
         copyItemFormat.setText("装備フォーマットをクリップボードにコピー");
 
@@ -1325,8 +1365,9 @@ public final class ApplicationMain extends WindowBase {
             public void widgetSelected(SelectionEvent e) {
 
                 if (GlobalContext.getState() == 1) {
+                    boolean isLockedOnlyAnalysisFormat = AppConfig.get().isUseLockedOnlyAnalysisFormat();
                     Clipboard clipboard = new Clipboard(Display.getDefault());
-                                  clipboard.setContents(new Object[] { new ItemFormatter().get(true) },
+                                  clipboard.setContents(new Object[] { new FleetAnalysis().getItemsFormat(isLockedOnlyAnalysisFormat) },
                             new Transfer[] { TextTransfer.getInstance() });
                 } else {
                     Shell shell = new Shell(Display.getDefault(), SWT.TOOL);
@@ -1352,7 +1393,19 @@ public final class ApplicationMain extends WindowBase {
         });
 
         rootItemFormatter.setMenu(copyItemFormatterMenu);
-        
+
+        new MenuItem(copyItemFormatterMenu, SWT.SEPARATOR);
+        final MenuItem isLockedOnlyAnalysisFormat = new MenuItem(copyItemFormatterMenu, SWT.CHECK);
+        isLockedOnlyAnalysisFormat.setText("ロックしている艦/装備限定");
+        isLockedOnlyAnalysisFormat.setSelection(AppConfig.get().isUseLockedOnlyAnalysisFormat());
+        isLockedOnlyAnalysisFormat.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                AppConfig.get().setUseLockedOnlyAnalysisFormat(isLockedOnlyAnalysisFormat.getSelection());
+            }
+        });
+
+
         // 選択する項目はドラックで移動できないようにする
         for (Control c : new Control[] { this.commandComposite,
                 this.deckNotice, this.ndockNotice,
@@ -1371,18 +1424,12 @@ public final class ApplicationMain extends WindowBase {
         this.configUpdated();
 
         // ホットキー
-        JIntellitypeWrapper.addListener(new HotkeyListener() {
-            @Override
-            public void onHotKey(int arg0) {
-                ApplicationMain.this.display.asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (ApplicationMain.this.shell.isDisposed() == false) {
-                            ApplicationMain.this.shell.forceActive();
-                        }
-                    }
-                });
-            }
+        JIntellitypeWrapper.addListener((int arg0) -> {
+            ApplicationMain.this.display.asyncExec(() -> {
+                if (ApplicationMain.this.shell.isDisposed() == false) {
+                    ApplicationMain.this.shell.forceActive();
+                }
+            });
         });
 
         sysPrint("ウィンドウ構築完了");
@@ -2083,6 +2130,8 @@ public final class ApplicationMain extends WindowBase {
 
     public Combo getAirbaseCombo(){ return this.airbaseCombo; }
 
+    public Combo getMapHpInfoCombo(){ return this.mapHpInfoCombo; }
+
     /**
      * エラーラベルを取得
      * @return
@@ -2224,6 +2273,17 @@ public final class ApplicationMain extends WindowBase {
             String result = "";
             int area = Integer.parseInt(this.airbaseCombo.getItem(this.airbaseCombo.getSelectionIndex()).replaceAll("#(\\d*).*","$1"));
             Map<Integer, AirbaseDto.AirCorpsDto> airCorps = airbase.get().get(area);
+            AirPower normalAirPower = airCorps.values().stream().filter(airCorp -> {
+                return airCorp.getActionKind() == 2;
+            }).map(airCorp -> {
+                return airCorp.getAirPower();
+            }).reduce(new AirPower(0), (sum, elm) -> {
+                sum.add(elm);
+                return sum;
+            });
+            AirPower highAltitudeInterceptionAirPower = AirbaseDto.getHighAltitudeInterceptionAirPower(airCorps);
+            result += "[合計防空制空値(通常)]:" + normalAirPower + "\r\n";
+            result += "[合計防空制空値(高高度)]:" + highAltitudeInterceptionAirPower + "\r\n" + "\r\n";
             for(final int airId : airCorps.keySet().stream().sorted().collect(Collectors.toList())){
                 AirbaseDto.AirCorpsDto airCorp = airCorps.get(airId);
                 result += "#" + area + "-" + airId + " " + "[" + airCorp.getActionKindString() + "]" + airCorp.getName() + "\r\n";
@@ -2244,6 +2304,49 @@ public final class ApplicationMain extends WindowBase {
                 result += "\r\n";
             }
             this.airbaseCombo.setToolTipText(result);
+        });
+    }
+
+    public void updateMapHpInfo() {
+        Optional.ofNullable(GlobalContext.getMapHpInfo()).ifPresent(mapHpInfo -> {
+            int select = this.mapHpInfoCombo.getSelectionIndex();
+            this.mapHpInfoCombo.removeAll();
+
+            List<String> info = mapHpInfo.stream().map(mapinfo -> {
+                int gaugeType = -1;
+                int current = 0;
+                int max = 0;
+
+                if (mapinfo.getRequiredDefeatCount() != -1 && mapinfo.getDefeatCount() < mapinfo.getRequiredDefeatCount()) {
+                    gaugeType = 1;
+                    current = mapinfo.getDefeatCount();
+                    max = mapinfo.getRequiredDefeatCount();
+                } else if (mapinfo.getMaxMapHp() > 0) {
+                    gaugeType = mapinfo.getGaugeType();
+                    current = mapinfo.getNowMapHp();
+                    max = mapinfo.getMaxMapHp();
+                }
+                int mapAreaId = mapinfo.getMapId() / 10;
+                int mapInfoId = mapinfo.getMapId() % 10;
+
+                if (gaugeType > 0) {
+                    return String.format("%d-%d%s: %s%s %d / %d%s", mapAreaId, mapInfoId,
+                    mapinfo.getDifficulty() > 0 ? " " + mapinfo.getDifficultyString() : "",
+                    mapinfo.getGaugeIndex() > 0 ? "#" + mapinfo.getGaugeIndex() + " " : "",
+                    gaugeType == 1 ? "撃破" : gaugeType == 2 ? "HP" : "TP",
+                    current, max,
+                    gaugeType == 1 ? " 回" : "");
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            info.forEach(result -> {
+                this.mapHpInfoCombo.add(result);
+            });
+
+            if(info.size() > 0){
+                this.mapHpInfoCombo.select(select < 0 && select < info.size() ? 0 : select);
+            }
         });
     }
 
