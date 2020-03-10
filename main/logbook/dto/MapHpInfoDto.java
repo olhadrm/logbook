@@ -39,10 +39,10 @@ public class MapHpInfoDto {
 
     public String getDifficultyString() {
         switch(this.difficulty) {
-            case 1: return "甲";
-            case 2: return "乙";
-            case 3: return "丙";
-            case 4: return "丁";
+            case 1: return "丁";
+            case 2: return "丙";
+            case 3: return "乙";
+            case 4: return "甲";
         }
         return "？";
     }
