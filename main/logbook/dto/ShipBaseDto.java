@@ -52,6 +52,13 @@ public abstract class ShipBaseDto extends AbstractDto {
     @Tag(7)
     private List<ItemDto> slotItem2;
 
+    /** 補助装備 */
+    @Tag(34)
+    private final int slotEx;
+
+    @Tag(35)
+    private final ItemDto slotExItem;
+
     /**
      * 艦娘用コンストラクター
      * @param object JSON Object
@@ -60,6 +67,8 @@ public abstract class ShipBaseDto extends AbstractDto {
         int shipId = object.getJsonNumber("api_ship_id").intValue();
         ShipInfoDto shipinfo = Ship.get(shipId);
         this.shipInfo = shipinfo;
+        this.slotEx = object.containsKey("api_slot_ex") ? object.getInt("api_slot_ex") : -1;
+        this.slotExItem = GlobalContext.getItem(this.getSlotEx());
         this.setSlotFromJson(object);
         ShipParameters[] params = ShipParameters.fromShip(object, this.getItem(), shipinfo);
         this.param = params[0];
@@ -90,6 +99,8 @@ public abstract class ShipBaseDto extends AbstractDto {
         this.param = params[0];
         this.max = this.shipInfo.getMax();
         this.slotParam = params[1];
+        this.slotEx = -1;
+        this.slotExItem = null;
     }
 
     /**
@@ -571,6 +582,30 @@ public abstract class ShipBaseDto extends AbstractDto {
      */
     public String getFullName() {
         return this.shipInfo.getFullName();
+    }
+
+    /**
+     * 補助装備の穴を開けているか
+     * @return
+     */
+    public boolean hasSlotEx() {
+        return this.slotEx != 0;
+    }
+
+    /**
+     * 補助装備ID
+     * @return
+     */
+    public int getSlotEx() {
+        return this.slotEx > 0 ? this.slotEx : -1;
+    }
+
+    /**
+     * 補助装備
+     * @return
+     */
+    public ItemDto getSlotExItem() {
+        return this.slotExItem;
     }
 
     /*

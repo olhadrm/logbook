@@ -418,20 +418,14 @@ public final class ConfigDialog extends Dialog {
         seikuCombo.select(AppConfig.get().getSeikuMethod());
 
         Label sakutekiLabel = new Label(compositeFleetTab, SWT.NONE);
-        sakutekiLabel.setText("索敵計算式");
+        sakutekiLabel.setText("索敵計算式【判定式(33)】");
         sakutekiLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
 
         final Combo sakutekiCombo = new Combo(compositeFleetTab, SWT.READ_ONLY);
         sakutekiCombo.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
-        sakutekiCombo.add("A.艦隊素の索敵値 + 装備の索敵値");
-        sakutekiCombo.add("B.判定式(33)(艦隊素の索敵分 + 装備分 - 提督Lv分 + 艦隊空き数分)");
-        sakutekiCombo.add("C.判定式(33)(2-5式(秋))");
-        sakutekiCombo.add("D.ほっぽアルファVer2.0.1(艦隊素の索敵分 + 装備分 - 提督Lv分)");
-        sakutekiCombo.add("F.ほっぽアルファVer2.0.1(2-5式(秋))");
-        sakutekiCombo.add("F.2-5式(秋)(艦隊素の索敵分 + 装備分 - 提督Lv分)");
-        sakutekiCombo.add("G.装備込みの艦隊索敵値合計(2-5式(秋))");
-        sakutekiCombo.add("H.2-5式(旧)(偵察機×2 + 電探 + √(装備込みの艦隊索敵値-偵察機-電探))");
-        sakutekiCombo.add("I.装備込みの艦隊索敵値(2-5式(旧))");
+        sakutekiCombo.add("A.33式値(係数)");
+        sakutekiCombo.add("B.33式値(艦隊素の索敵分 + 装備分(係数) - 提督Lv分 + 艦隊空き数分)");
+        sakutekiCombo.add("C.33式値(1) / 33式値(2) / 33式値(3) / 33式値(4) / 33式値(5)");
         sakutekiCombo.select(AppConfig.get().getSakutekiMethodV4());
 
         Label labelBunkiten = new Label(compositeFleetTab, SWT.NONE);
@@ -443,6 +437,14 @@ public final class ConfigDialog extends Dialog {
         gdBunkiten.widthHint = SwtUtils.DPIAwareWidth(180);
         bunkiten.setLayoutData(gdBunkiten);
         bunkiten.setText(Double.toString(AppConfig.get().getBunkitenKeisu()));
+        bunkiten.setEnabled(AppConfig.get().getSakutekiMethodV4() != 2);
+
+        sakutekiCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                bunkiten.setEnabled(sakutekiCombo.getSelectionIndex() != 2);
+            }
+        });
 
         Label mainLog = new Label(compositeFleetTab, SWT.NONE);
         mainLog.setText("母港タブのログ");

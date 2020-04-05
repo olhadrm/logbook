@@ -94,13 +94,6 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
     @Tag(27)
     private int[] onslot;
 
-    /** 補助装備 */
-    @Tag(34)
-    private final int slotEx;
-
-    @Tag(35)
-    private final ItemDto slotExItem;
-
     @Tag(40)
     private final String json;
 
@@ -143,13 +136,6 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
         this.slotnum = object.getJsonNumber("api_slotnum").intValue();
         this.onslot = JsonUtils.getIntArray(object, "api_onslot");
 
-        int _slotEx = -1;
-        if (object.containsKey("api_slot_ex")) {
-            _slotEx = object.getInt("api_slot_ex");
-        }
-        this.slotEx = _slotEx;
-        this.slotExItem = GlobalContext.getItem(this.getSlotEx());
-
         this.soku = object.getInt("api_soku");
 
         this.sallyArea = object.containsKey("api_sally_area") ? object.getInt("api_sally_area") : 0;
@@ -191,9 +177,6 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
                 this.onslot[i] = maxeq[i];
             }
         }
-
-        this.slotEx = -1;
-        this.slotExItem = null;
 
         this.soku = shipinfo.getParam().getSoku();
 
@@ -603,30 +586,6 @@ public final class ShipDto extends ShipBaseDto implements Comparable<ShipDto> {
      */
     public void setOnslot(int[] onslot) {
         this.onslot = onslot;
-    }
-
-    /**
-     * 補助装備の穴を開けているか
-     * @return
-     */
-    public boolean hasSlotEx() {
-        return this.slotEx != 0;
-    }
-
-    /**
-     * 補助装備ID
-     * @return
-     */
-    public int getSlotEx() {
-        return this.slotEx > 0 ? this.slotEx : -1;
-    }
-
-    /**
-     * 補助装備
-     * @return
-     */
-    public ItemDto getSlotExItem() {
-        return this.slotExItem;
     }
 
     /**
