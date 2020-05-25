@@ -3,18 +3,22 @@ package logbook.gui.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import logbook.config.AppConfig;
 import logbook.dto.ItemDto;
 import logbook.dto.ShipBaseDto;
+import logbook.internal.Item;
 
 /**
  * @author Nekopanda
  *
  */
 public class SakutekiString implements Comparable<SakutekiString> {
+    private static int[] US_SHIP = { 65, 69, 83, 84, 87, 91 };
+    private static int[] UK_SHIP = { 67, 78, 82, 88 };
     private double f33TotalShipLoS = 0;
     private double f33TotalItemLoS = 0;
     private double hqLvLoS = 0;
@@ -32,31 +36,45 @@ public class SakutekiString implements Comparable<SakutekiString> {
             this.ship = ship;
             this.items = new ArrayList<>(ship.getItem2());
             this.items.add(ship.getSlotExItem());
-            this.shipLoS = Math.sqrt(this.ship.getSakuteki() - items.stream().filter(Objects::nonNull).mapToInt(item -> {
-                if (item.getSlotitemId() == 315
-                        && Arrays.asList(65, 69, 83, 84, 87, 91).stream()
-                            .anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
-                    return item.getParam().getSaku() + 4;
-                }
-                return item.getParam().getSaku();
-            }).sum());
+            int itemParamLoS = this.items.stream().filter(Objects::nonNull)
+                    .mapToInt(item -> item.getParam().getSakuteki())
+                    .sum();
+            Map<Integer, List<ItemDto>> itemCounts = this.items.stream().filter(Objects::nonNull)
+                    .collect(Collectors.groupingBy(ItemDto::getId));
+            int itemBonus = 0;
+            if (Arrays.stream(US_SHIP).anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
+                itemBonus += itemCounts.containsKey(278) ? 1 : 0;
+                itemBonus += itemCounts.containsKey(279) ? 2 : 0;
+                itemBonus += itemCounts.containsKey(315) ? itemCounts.get(315).size() * 4 : 0;
+            }
+            if (Arrays.stream(UK_SHIP).anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
+                itemBonus += itemCounts.containsKey(279) ? 1 : 0;
+            }
+
+            this.shipLoS = Math.sqrt(this.ship.getSakuteki() - itemParamLoS - itemBonus);
 
             this.itemLoS = items.stream().filter(Objects::nonNull).mapToDouble(item -> {
                 int los = item.getParam().getSaku();
                 int lv = item.getLevel();
-                switch(item.getType2()) {
-                    // 艦上攻撃機
-                    case 8: return 0.8 * los;
-                    // 艦上偵察機
-                    case 9: return 1.0 * (los + 1.2 * Math.sqrt(lv));
-                    // 水上偵察機
-                    case 10: return 1.2 * (los + 1.2 * Math.sqrt(lv));
-                    // 水上爆撃機
-                    case 11: return 1.1 * (los + 1.15 * Math.sqrt(lv));
-                    // 小型電探
-                    case 12: return 0.6 * (los + 1.25 * Math.sqrt(lv));
-                    // 大型電探
-                    case 13: return 0.6 * (los + 1.4 * Math.sqrt(lv));
+                switch (item.getType2()) {
+                // 艦上攻撃機
+                case 8:
+                    return 0.8 * los;
+                // 艦上偵察機
+                case 9:
+                    return 1.0 * (los + 1.2 * Math.sqrt(lv));
+                // 水上偵察機
+                case 10:
+                    return 1.2 * (los + 1.2 * Math.sqrt(lv));
+                // 水上爆撃機
+                case 11:
+                    return 1.1 * (los + 1.15 * Math.sqrt(lv));
+                // 小型電探
+                case 12:
+                    return 0.6 * (los + 1.25 * Math.sqrt(lv));
+                // 大型電探
+                case 13:
+                    return 0.6 * (los + 1.4 * Math.sqrt(lv));
                 }
                 return 0.6 * los;
             }).sum();
@@ -114,28 +132,25 @@ public class SakutekiString implements Comparable<SakutekiString> {
         }
         double small = 0.00000000000001;
         switch (method) {
-            case 1: // 判定式(33)(艦素索敵分 + 装備分 + 提督Lv分 + 艦隊空き数分)
-                return String.format("%.3f (%.3f%+.3f(%.1f)%+.1f%+.1f)",
+        case 1: // 判定式(33)(艦素索敵分 + 装備分 + 提督Lv分 + 艦隊空き数分)
+            return String.format("%.3f (%.3f%+.3f(%.1f)%+.1f%+.1f)",
                     (Math.floor((this.getValue() + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((this.f33TotalShipLoS + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((this.f33TotalItemLoS + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((cn + small) * 10) + 0.1) / 10.0,
                     this.hqLvLoS,
-                    this.spaceLoS
-                );
-            case 2: // 判定式(33)
-                return String.format("%.3f(1) / %.3f(2) / %.3f(3) / %.3f(4) / %.3f(5)",
+                    this.spaceLoS);
+        case 2: // 判定式(33)
+            return String.format("%.3f(1) / %.3f(2) / %.3f(3) / %.3f(4) / %.3f(5)",
                     (Math.floor((this.getValue(1) + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((this.getValue(2) + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((this.getValue(3) + small) * 1000) + 0.1) / 1000.0,
                     (Math.floor((this.getValue(4) + small) * 1000) + 0.1) / 1000.0,
-                    (Math.floor((this.getValue(5) + small) * 1000) + 0.1) / 1000.0
-                );
+                    (Math.floor((this.getValue(5) + small) * 1000) + 0.1) / 1000.0);
         }
         return String.format("%.3f (%.1f)",
-            (Math.floor((this.getValue() + small) * 1000) + 0.1) / 1000.0,
-            (Math.floor((cn + small) * 10) + 0.1) / 10.0
-        );
+                (Math.floor((this.getValue() + small) * 1000) + 0.1) / 1000.0,
+                (Math.floor((cn + small) * 10) + 0.1) / 10.0);
     }
 
     @Override

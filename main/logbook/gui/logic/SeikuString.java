@@ -93,7 +93,8 @@ public class SeikuString implements Comparable<SeikuString> {
                                 tyku += item.getLevel() * 0.2;
                                 break;
                             case 1: // 爆戦（爆戦でない艦上爆撃機や艦上攻撃機、噴式戦闘爆撃機は不明だけど一応入れておく）
-                                if (item.getParam().getTyku() > 0) {
+                            // 汎用的に(九七式艦攻(友永隊)改修実装に伴い変更)
+                                if (item.getParam().getTyku() > 3) {
                                     tyku += item.getLevel() * 0.25;
                                 }
                                 break;

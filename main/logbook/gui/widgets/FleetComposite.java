@@ -363,9 +363,11 @@ public class FleetComposite extends Composite {
                         /** 中口径主砲 */
                         case 2: return Math.sqrt(item.getLevel());
                         /** 大口径主砲 */
-                        case 3: return 0.75 * Math.sqrt(item.getLevel());
+                        case 3: return 0.95 * Math.sqrt(item.getLevel());
                         /** 副砲 */
                         case 4: return 0.15 * item.getLevel();
+                        /** 徹甲弾 */
+                        case 19: return 0.5 * Math.sqrt(item.getLevel());
                         /** 機銃 */
                         case 21: return 0.5 * Math.sqrt(item.getLevel());
                     }

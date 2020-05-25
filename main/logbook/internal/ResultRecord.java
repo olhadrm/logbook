@@ -61,8 +61,8 @@ public class ResultRecord {
             if (border.plusHours(12 - ((10 + border.getHour()) % 12)).isBefore(nowTime)) {
                 this.admiralExpAtBeggingOfHalfDay = nowAdmiralExp;
             }
-            // 一日戦果:5時時点
-            if (border.plusHours(24 - ((19 + border.getHour()) % 24)).isBefore(nowTime)) {
+            // 一日戦果:2時時点
+            if (border.plusHours(24 - ((22 + border.getHour()) % 24)).isBefore(nowTime)) {
                 this.admiralExpAtBeggingOfDay = nowAdmiralExp;
             }
             // 一月戦果:最終日22時時点

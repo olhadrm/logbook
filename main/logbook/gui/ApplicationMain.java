@@ -331,6 +331,8 @@ public final class ApplicationMain extends WindowBase {
 
     /** エラー表示 **/
     private Label errorLabel;
+    /** マンスリー遠征警告表示 **/
+    private Label warningExpeditionLabel;
     /** コンソール **/
     private org.eclipse.swt.widgets.List console;
 
@@ -1048,6 +1050,16 @@ public final class ApplicationMain extends WindowBase {
         this.errorLabel.setText("エラー表示");
         LayoutLogic.hide(this.errorLabel, true);
         this.errorLabel.setVisible(false);
+        
+        // マンスリー遠征警告表示
+        this.warningExpeditionLabel = new Label(this.mainComposite, SWT.NONE);
+        this.warningExpeditionLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.warningExpeditionLabel.setAlignment(SWT.CENTER);
+        this.warningExpeditionLabel.setBackground(ColorManager.getColor(AppConstants.COND_ORANGE_COLOR));
+        this.warningExpeditionLabel.setText("マンスリー遠征警告表示");
+        this.warningExpeditionLabel.setToolTipText("");
+        LayoutLogic.hide(this.warningExpeditionLabel, true);
+        this.warningExpeditionLabel.setVisible(false);
 
         // コンソール
         this.console = new org.eclipse.swt.widgets.List(this.mainComposite, SWT.BORDER | SWT.V_SCROLL);
@@ -2138,6 +2150,14 @@ public final class ApplicationMain extends WindowBase {
      */
     public Label getErrorLabel() {
         return this.errorLabel;
+    }
+
+    /**
+     * マンスリー遠征警告ラベルを取得
+     * @return
+     */
+    public Label getWarningExpeditionLabel() {
+        return this.warningExpeditionLabel;
     }
 
     /**

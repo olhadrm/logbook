@@ -678,6 +678,26 @@ public final class ConfigDialog extends Dialog {
         fullyLabel4.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         fullyLabel4.setText("以下でバルーン通知");
 
+        final Button expeditionWarning = new Button(compositeNotify, SWT.CHECK);
+        expeditionWarning.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+        expeditionWarning.setText("未達成のマンスリー遠征があることを表示する");
+        expeditionWarning.setSelection(AppConfig.get().isShowMonthlyExpeditionWarning());
+
+        Label expedLabel1 = new Label(compositeNotify, SWT.NONE);
+        expedLabel1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        expedLabel1.setText("遠征期限の");
+
+        final Spinner expedSpinner = new Spinner(compositeNotify, SWT.BORDER);
+        expedSpinner.setMaximum(25);
+        expedSpinner.setMinimum(0);
+        expedSpinner.setSelection(AppConfig.get().getMonthlyExpeditionWarningDays());
+        expedSpinner.setLayoutData(SwtUtils.initSpinner(55,
+                new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1)));
+
+        Label expedLabel2 = new Label(compositeNotify, SWT.NONE);
+        expedLabel2.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        expedLabel2.setText("日前から警告表示");
+
         // キャプチャ タブ
         compositeCapture.setLayout(new GridLayout(3, false));
 
@@ -1174,6 +1194,8 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setShipFullBalloonNotify(shipFullSpinner.getSelection());
                 AppConfig.get().setEnableItemFullBalloonNotify(itemFullBalloon.getSelection());
                 AppConfig.get().setItemFullBalloonNotify(itemFullSpinner.getSelection());
+                AppConfig.get().setShowMonthlyExpeditionWarning(expeditionWarning.getSelection());
+                AppConfig.get().setMonthlyExpeditionWarningDays(expedSpinner.getSelection());
                 // capture
                 AppConfig.get().setCapturePath(captureDir.getText());
                 AppConfig.get().setImageFormat(imageformatCombo.getItem(imageformatCombo.getSelectionIndex()));

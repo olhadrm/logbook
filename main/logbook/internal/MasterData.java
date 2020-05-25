@@ -645,6 +645,10 @@ public class MasterData {
             return this.json.getInt("api_time");
         }
 
+        public String getDispNo() {
+            return this.json.getString("api_disp_no");
+        }
+
         /**
          * もらえるかもしれないアイテム
          * @return winItem

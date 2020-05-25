@@ -407,6 +407,12 @@ public final class AppConfigBean {
     /** 艦隊分析の対象をロックしている艦/装備に限定するか */
     private boolean useLockedOnlyAnalysisFormat = false;
 
+    /** マンスリー遠征警告を表示するか */
+    private boolean showMonthlyExpeditionWarning = false;
+
+    /** マンスリー遠征警告の表示日(何日前から) */
+    private int monthlyExpeditionWarningDays = 5;
+
     private static RGB cloneRGB(RGB rgb) {
         return new RGB(rgb.red, rgb.green, rgb.blue);
     }
@@ -2310,5 +2316,21 @@ public final class AppConfigBean {
 
     public void setShowMapHpInfo(boolean showMapHpInfo) {
         this.showMapHpInfo = showMapHpInfo;
+    }
+
+    public boolean isShowMonthlyExpeditionWarning() {
+        return this.showMonthlyExpeditionWarning;
+    }
+
+    public void setShowMonthlyExpeditionWarning(boolean showMonthlyExpeditionWarning) {
+        this.showMonthlyExpeditionWarning = showMonthlyExpeditionWarning;
+    }
+
+    public int getMonthlyExpeditionWarningDays() {
+        return this.monthlyExpeditionWarningDays;
+    }
+
+    public void setMonthlyExpeditionWarningDays(int monthlyExpeditionWarningDays) {
+        this.monthlyExpeditionWarningDays = monthlyExpeditionWarningDays;
     }
 }
