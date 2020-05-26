@@ -40,16 +40,16 @@ public class SakutekiString implements Comparable<SakutekiString> {
                     .mapToInt(item -> item.getParam().getSakuteki())
                     .sum();
             Map<Integer, List<ItemDto>> itemCounts = this.items.stream().filter(Objects::nonNull)
-                    .collect(Collectors.groupingBy(ItemDto::getId));
+                    .collect(Collectors.groupingBy(ItemDto::getSlotitemId));
             int itemBonus = 0;
             if (Arrays.stream(US_SHIP).anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
-                itemBonus += itemCounts.containsKey(278) ? 1 : 0;
-                itemBonus += itemCounts.containsKey(279) ? 2 : 0;
+                // itemBonus += itemCounts.containsKey(278) ? 1 : 0;
+                // itemBonus += itemCounts.containsKey(279) ? 2 : 0;
                 itemBonus += itemCounts.containsKey(315) ? itemCounts.get(315).size() * 4 : 0;
             }
-            if (Arrays.stream(UK_SHIP).anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
-                itemBonus += itemCounts.containsKey(279) ? 1 : 0;
-            }
+            // if (Arrays.stream(UK_SHIP).anyMatch(ctype -> ctype == ship.getShipInfo().getCtype())) {
+            //     itemBonus += itemCounts.containsKey(279) ? 1 : 0;
+            // }
 
             this.shipLoS = Math.sqrt(this.ship.getSakuteki() - itemParamLoS - itemBonus);
 
