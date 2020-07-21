@@ -3,14 +3,12 @@ package logbook.gui.widgets;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
@@ -254,6 +252,35 @@ public class FleetComposite extends Composite {
         }
     }
 
+    private int getParam(ItemDto item, String kind) {
+        switch (kind) {
+        case "houg":
+            return item.getParam().getHoug();
+        case "tyku":
+            return item.getParam().getTyku();
+        case "tais":
+            return item.getParam().getTais();
+        case "saku":
+            return item.getParam().getSaku();
+        }
+        return 0;
+    }
+
+    private int getExpeditionPlaneBonus(int[] slots, List<ItemDto> items, String kind) {
+        for (int i = 0; i < slots.length && i < items.size(); i++) {
+            int slot = slots[i];
+            ItemDto item = items.get(i);
+            if (item.isPlane()) {
+                if (slot > 0) {
+                    return (int) Math
+                            .floor(getParam(item, kind) * (-0.35 + Math.sqrt(Math.max(0, slot - 2))));
+                }
+                return -getParam(item, kind);
+            }
+        }
+        return 0;
+    }
+
     /**
      * 艦隊を更新します
      *
@@ -354,64 +381,70 @@ public class FleetComposite extends Composite {
             List<ItemDto> _itemList = new ArrayList<>(ship.getItem2());
             _itemList.add(ship.getSlotExItem());
             List<ItemDto> itemList = _itemList.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            int[] onslot = ship.getOnSlot();
             // 艦隊合計火力値(装備込)
-            totalFirepower += ship.getKaryoku() + itemList.stream()
-                .mapToDouble(item -> {
-                    switch(item.getType2()) {
-                        /** 小口径主砲 */
-                        case 1: return 0.5 * Math.sqrt(item.getLevel());
-                        /** 中口径主砲 */
-                        case 2: return Math.sqrt(item.getLevel());
-                        /** 大口径主砲 */
-                        case 3: return 0.95 * Math.sqrt(item.getLevel());
-                        /** 副砲 */
-                        case 4: return 0.15 * item.getLevel();
-                        /** 徹甲弾 */
-                        case 19: return 0.5 * Math.sqrt(item.getLevel());
-                        /** 機銃 */
-                        case 21: return 0.5 * Math.sqrt(item.getLevel());
-                    }
-                    return 0;
-                }).sum();
-            // 艦隊合計索敵値(装備込)
-            totalLOS += ship.getSakuteki() + itemList.stream()
-                .mapToDouble(item -> {
-                    switch(item.getType3()) {
-                        /** 電探 */
-                        case 11: return Math.sqrt(item.getLevel());
-                    }
-                    return 0;
-                }).sum();
-            // 艦隊合計対潜値(装備込)
-            Integer[] exceptionItems = {10, 11, 41};
-            totaltaisen += ship.getTaisen()
-                 - itemList.stream()
-                    .filter(item -> Arrays.asList(exceptionItems).contains(item.getType2()))
-                    .mapToInt(item -> item.getParam().getTaisen()).sum()
-                 + itemList.stream()
+            totalFirepower += ship.getKaryoku() + getExpeditionPlaneBonus(onslot, itemList, "houg") + itemList.stream()
                     .mapToDouble(item -> {
-                        switch(item.getType2()) {
-                            /** ソナー */
-                            case 14:
-                            /** 爆雷 */
-                            case 15: return Math.sqrt(item.getLevel());
+                        switch (item.getType2()) {
+                        /** 小口径主砲 */
+                        case 1:
+                            return 0.5 * Math.sqrt(item.getLevel());
+                        /** 中口径主砲 */
+                        case 2:
+                            return Math.sqrt(item.getLevel());
+                        /** 大口径主砲 */
+                        case 3:
+                            return 0.95 * Math.sqrt(item.getLevel());
+                        /** 副砲 */
+                        case 4:
+                            return 0.15 * item.getLevel();
+                        /** 徹甲弾 */
+                        case 19:
+                            return 0.5 * Math.sqrt(item.getLevel());
+                        /** 機銃 */
+                        case 21:
+                            return 0.5 * Math.sqrt(item.getLevel());
                         }
                         return 0;
                     }).sum();
+            // 艦隊合計索敵値(装備込)
+            totalLOS += ship.getSakuteki() + getExpeditionPlaneBonus(onslot, itemList, "saku") + itemList.stream()
+                    .mapToDouble(item -> {
+                        switch (item.getType3()) {
+                        /** 電探 */
+                        case 11:
+                            return Math.sqrt(item.getLevel());
+                        }
+                        return 0;
+                    }).sum();
+            // 艦隊合計対潜値(装備込)
+            totaltaisen += ship.getTaisen() + getExpeditionPlaneBonus(onslot, itemList, "tais")
+                    + itemList.stream()
+                            .mapToDouble(item -> {
+                                switch (item.getType2()) {
+                                /** ソナー */
+                                case 14:
+                                    /** 爆雷 */
+                                case 15:
+                                    return Math.sqrt(item.getLevel());
+                                }
+                                return 0;
+                            }).sum();
             // 艦隊合計対空値(装備込)
-            totaltaiku += ship.getTaiku() + itemList.stream()
-                .mapToDouble(item -> {
-                    switch(item.getType3()) {
+            totaltaiku += ship.getTaiku() + getExpeditionPlaneBonus(onslot, itemList, "tyku") + itemList.stream()
+                    .mapToDouble(item -> {
+                        switch (item.getType3()) {
                         /** 機銃 */
-                        case 15: return Math.sqrt(item.getLevel());
+                        case 15:
+                            return Math.sqrt(item.getLevel());
                         /** 高角砲 */
-                        case 16: return 0.3 * item.getLevel();
-                    }
-                    return 0;
-                }).sum();
+                        case 16:
+                            return 0.3 * item.getLevel();
+                        }
+                        return 0;
+                    }).sum();
             // 損失艦載機
             int[] maxeq = ship.getMaxeq();
-            int[] onslot = ship.getOnSlot();
             List<ItemInfoDto> items = ship.getItem();
             // 普通はnullにならないが、メンテで艦娘が追加されたあとリロードしていない場合に情報がなくてnullになることがある
             if (maxeq != null) {
@@ -571,25 +604,25 @@ public class FleetComposite extends Composite {
 
             // 対空項目
             String aaString = "";
-            if(AppConfig.get().isShowAA()){
+            if (AppConfig.get().isShowAA()) {
                 CalcAA calcAA = new CalcAA();
                 List<ShipDto> aaShips = new ArrayList<>();
                 aaShips.addAll(ships);
                 boolean isCombined = GlobalContext.isCombined();
-                if(isCombined){
-                    switch (dockIndex){
-                        case 0:
-                            aaShips.addAll(GlobalContext.getDock("2").getShips());
-                            break;
-                        case 1:
-                            aaShips.addAll(GlobalContext.getDock("1").getShips());
-                            break;
+                if (isCombined) {
+                    switch (dockIndex) {
+                    case 0:
+                        aaShips.addAll(GlobalContext.getDock("2").getShips());
+                        break;
+                    case 1:
+                        aaShips.addAll(GlobalContext.getDock("1").getShips());
+                        break;
                     }
                 }
                 aaString += String.format("加:%.2f 割:%.2f%% 固:%d ",
-                        calcAA.getFinalWeightedAirValue(ship,aaShips,true,1),
-                        calcAA.getPropShotDown(ship,true,isCombined,dockIndex == 1, false) * 100,
-                        calcAA.getFixedShotDown(ship,aaShips,true,isCombined,dockIndex == 1,1,0, false));
+                        calcAA.getFinalWeightedAirValue(ship, aaShips, true, 1),
+                        calcAA.getPropShotDown(ship, true, isCombined, dockIndex == 1, false) * 100,
+                        calcAA.getFixedShotDown(ship, aaShips, true, isCombined, dockIndex == 1, 1, 0, false));
             }
             this.aaLabels[i].setText(aaString);
             this.aaLabels[i].setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_RED));
@@ -632,8 +665,7 @@ public class FleetComposite extends Composite {
                             timeLabel.setToolTipText(tip);
                             timeLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GREEN));
                             timeLabel.getParent().layout();
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             LOG.get().warn("披露表示更新でエラー", e);
                         }
                     }
@@ -829,27 +861,29 @@ public class FleetComposite extends Composite {
                 MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI, sakutekiString.toString()), null);
         this.addStyledText(this.message, "\n", null);
         // 対空
-        if(AppConfig.get().isShowAA()){
+        if (AppConfig.get().isShowAA()) {
             CalcAA calcAA = new CalcAA();
             List<ShipDto> aaShips = new ArrayList<>();
             aaShips.addAll(ships);
             boolean isCombined = GlobalContext.isCombined();
-            if(isCombined){
-                switch (dockIndex){
-                    case 0:
-                        aaShips.addAll(GlobalContext.getDock("2").getShips());
-                        break;
-                    case 1:
-                        aaShips.addAll(GlobalContext.getDock("1").getShips());
-                        break;
+            if (isCombined) {
+                switch (dockIndex) {
+                case 0:
+                    aaShips.addAll(GlobalContext.getDock("2").getShips());
+                    break;
+                case 1:
+                    aaShips.addAll(GlobalContext.getDock("1").getShips());
+                    break;
                 }
             }
             this.addStyledText(this.message,
-                    MessageFormat.format(AppConstants.MESSAGE_AA, calcAA.getFleetAirDefenseValue(aaShips,true,1)), null);
+                    MessageFormat.format(AppConstants.MESSAGE_AA, calcAA.getFleetAirDefenseValue(aaShips, true, 1)),
+                    null);
             this.addStyledText(this.message, "\n", null);
         }
         // 遠征
-        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_EXPEDITION, totalFirepower, totaltaiku, totaltaisen, totalLOS), null);
+        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_EXPEDITION, totalFirepower,
+                totaltaiku, totaltaisen, totalLOS), null);
         this.addStyledText(this.message, "\n", null);
         // 合計Lv
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TOTAL_LV, totallv), null);

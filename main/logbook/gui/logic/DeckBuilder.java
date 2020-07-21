@@ -155,9 +155,8 @@ public class DeckBuilder {
                             ship.add("luck", ships.get(shipIdx).getLucky());
                             JsonObjectBuilder items = Json.createObjectBuilder();
                             List<ItemDto> item2 = ships.get(shipIdx).getItem2();
-                            int slotNum = ships.get(shipIdx).getSlotNum();
 
-                            IntStream.range(0, slotNum)
+                            IntStream.range(0, item2.size())
                                     .filter(itemIdx -> Optional.ofNullable(item2.get(itemIdx)).isPresent())
                                     .boxed()
                                     .collect(Collectors.toMap(itemIdx -> itemIdx, itemIdx -> item2.get(itemIdx)))
@@ -184,6 +183,7 @@ public class DeckBuilder {
                                     item.add("rf", 0);
                                 }                               
                                 item.add("mas", Integer.toString(slotExItem.getAlv()));
+                                int slotNum = ships.get(shipIdx).getSlotNum();
                                 if (slotNum < 5) {
                                     items.add("i" + (slotNum + 1), item);
                                 } else {
