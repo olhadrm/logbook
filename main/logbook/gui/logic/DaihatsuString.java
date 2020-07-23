@@ -25,8 +25,10 @@ public class DaihatsuString {
             { 5.4, 5.6, 5.8, 5.9, 6 }
     };
 
-    // 大発系の数
+    // 大発の数
     private int numDaihatsu = 0;
+    // 大発系の数
+    private int numDaihatsuType = 0;
     // 大発系の★の数合計
     private int totalDaihatsuLevel = 0;
     // 特大発の数
@@ -39,8 +41,7 @@ public class DaihatsuString {
     // 特大発による上昇
     private double daihatsuUpToku = 0;
 
-    public DaihatsuString(List<ShipDto> ships)
-    {
+    public DaihatsuString(List<ShipDto> ships) {
         //大発による遠征効率UP
         for (ShipDto shipDto : ships) {
             if (shipDto.getName().equals("鬼怒改二")) {
@@ -51,21 +52,22 @@ public class DaihatsuString {
                     if (item.getName().equals("大発動艇")) {
                         this.daihatsuUpBase += 5.0;
                         ++this.numDaihatsu;
+                        ++this.numDaihatsuType;
                         this.totalDaihatsuLevel += item.getLevel();
                     }
                     else if (item.getName().equals("大発動艇(八九式中戦車&陸戦隊)")) {
                         this.daihatsuUpBase += 2.0;
-                        ++this.numDaihatsu;
+                        ++this.numDaihatsuType;
                         this.totalDaihatsuLevel += item.getLevel();
                     }
                     else if (item.getName().equals("特二式内火艇")) {
                         this.daihatsuUpBase += 1.0;
-                        ++this.numDaihatsu;
+                        ++this.numDaihatsuType;
                         this.totalDaihatsuLevel += item.getLevel();
                     }
                     else if (item.getName().equals("特大発動艇")) {
                         this.daihatsuUpBase += 5.0;
-                        ++this.numDaihatsu;
+                        ++this.numDaihatsuType;
                         ++this.numTokuDihatsu;
                         this.totalDaihatsuLevel += item.getLevel();
                     }
@@ -77,13 +79,11 @@ public class DaihatsuString {
             this.daihatsuUpBase = 20;
         }
         // 改修による補正
-        if (this.numDaihatsu > 0) {
-            this.daihatsuUpLevel = (0.01 * this.daihatsuUpBase * this.totalDaihatsuLevel) / this.numDaihatsu;
+        if (this.numDaihatsuType > 0) {
+            this.daihatsuUpLevel = (0.01 * this.daihatsuUpBase * this.totalDaihatsuLevel) / this.numDaihatsuType;
         }
         // 特大発補正
-        this.daihatsuUpToku = TOKUDAIHATSU_HOSEI
-                [Math.min(this.numTokuDihatsu, 4)]
-                [Math.min(this.numDaihatsu - this.numTokuDihatsu, 4)];
+        this.daihatsuUpToku = TOKUDAIHATSU_HOSEI[Math.min(this.numTokuDihatsu, 4)][Math.min(this.numDaihatsu, 4)];
     }
 
     public double getUp() {
@@ -92,6 +92,6 @@ public class DaihatsuString {
 
     @Override
     public String toString() {
-        return MessageFormat.format(AppConstants.MESSAGE_TOTAL_DAIHATSU, this.numDaihatsu, this.getUp());
+        return MessageFormat.format(AppConstants.MESSAGE_TOTAL_DAIHATSU, this.numDaihatsuType, this.getUp());
     }
 }

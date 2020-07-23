@@ -173,6 +173,7 @@ public class BattleAtackDto {
             boolean isBase) {
 
         int elems = dam_list.size() - baseidx;
+        int celems = cdam_list != null ? cdam_list.size() - baseidx : 0;
         BattleAtackDto dto = new BattleAtackDto();
         dto.kind = isBase ? AtackKind.AIRBASE : AtackKind.AIR;
         dto.friendAtack = friendAtack;
@@ -201,7 +202,7 @@ public class BattleAtackDto {
             }
         }
         if (cdam_list != null) {
-            for (int i = 0; i < elems; ++i) {
+            for (int i = 0; i < celems; ++i) {
                 int dam = cdam_list.getInt(i + baseidx);
                 if (dam > 0) {
                     idx++;
@@ -224,7 +225,7 @@ public class BattleAtackDto {
             }
         }
         if (cdam_list != null) {
-            for (int i = 0; i < elems; ++i) {
+            for (int i = 0; i < celems; ++i) {
                 int dam = cdam_list.getInt(i + baseidx);
                 int cl = ccl_list.getInt(i + baseidx);
                 if (dam > 0) {
