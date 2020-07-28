@@ -1,6 +1,11 @@
 package logbook.gui.background;
 
+import java.io.StringReader;
 import java.nio.charset.Charset;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 import logbook.constants.AppConstants;
 
@@ -13,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 public final class AsyncExecUpdateCheck extends Thread {
 
     public static interface UpdateResult {
-        void onSuccess(String[] okversions);
+        void onSuccess(String version);
 
         void onError(Exception e);
     }
@@ -33,9 +38,11 @@ public final class AsyncExecUpdateCheck extends Thread {
     @Override
     public void run() {
         try {
-            String[] okversions = IOUtils.toString(AppConstants.UPDATE_CHECK_URI, Charset.forName("UTF-8"))
-                    .split(";");
-            this.handler.onSuccess(okversions);
+            String jsonString = IOUtils.toString(AppConstants.UPDATE_CHECK_URI, Charset.forName("UTF-8"));
+            JsonReader json = Json.createReader(new StringReader(jsonString));
+            JsonObject api = json.readObject();
+            String version = api.getString("tag_name").replace("v", "");
+            this.handler.onSuccess(version);
         } catch (Exception e) {
             this.handler.onError(e);
         }

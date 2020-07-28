@@ -27,11 +27,11 @@ public class AppConstants {
     public static final String VERSION = "2.5.7.8";
 
     /** ホームページ */
-    public static final URI HOME_PAGE_URI = URI.create("http://nekopanda.blog.jp/");
+    public static final URI HOME_PAGE_URI = URI.create("https://github.com/Nishisonic/logbook/releases");
 
     /** アップデートチェック先 */
     public static final URI UPDATE_CHECK_URI = URI
-            .create("http://nekopandanet.sakura.ne.jp/logbook/version/okversions.txt");
+            .create("https://api.github.com/repos/Nishisonic/logbook/releases/latest");
 
     /** 日付書式 */
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

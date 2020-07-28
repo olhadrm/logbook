@@ -315,11 +315,17 @@ public final class AppConfigBean {
     /** 艦これ統計データベースへのデータ送信 */
     private boolean sendDatabase = false;
 
+    /** TsunDBへのデータ送信 */
+    private boolean sendTsunDB = false;
+
     /** 艦これ統計データベースへ送信するときのアクセスキー */
     private String accessKey = "";
 
     /** 艦これ統計データベースへのデータ送信をログ出力するか？ */
     private boolean databaseSendLog = false;
+
+    /** TsunDBへのデータ送信をログ出力するか？ */
+    private boolean tsunDBSendLog = false;
 
     /** ウィンドウの表示状態 */
     private Map<String, WindowConfigBean> windowConfigMap = new HashMap<String, WindowConfigBean>();
@@ -1790,6 +1796,14 @@ public final class AppConfigBean {
         this.sendDatabase = sendDatabase;
     }
 
+    public boolean isSendTsunDB() {
+        return this.sendTsunDB;
+    }
+
+    public void setSendTsunDB(boolean sendTsunDB) {
+        this.sendTsunDB = sendTsunDB;
+    }
+
     /**
      * @return accessKey
      */
@@ -1914,6 +1928,14 @@ public final class AppConfigBean {
      */
     public void setDatabaseSendLog(boolean databaseSendLog) {
         this.databaseSendLog = databaseSendLog;
+    }
+
+    public boolean isTsunDBSendLog() {
+        return this.tsunDBSendLog;
+    }
+
+    public void setTsunDBSendLog(boolean tsunDBSendLog) {
+        this.tsunDBSendLog = tsunDBSendLog;
     }
 
     /**

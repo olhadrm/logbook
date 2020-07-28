@@ -43,6 +43,7 @@ import logbook.internal.Item;
 import logbook.scripting.ScriptData;
 import logbook.server.proxy.DatabaseClient;
 import logbook.server.proxy.ProxyServer;
+import logbook.server.proxy.TsunDBClient;
 import logbook.thread.ThreadManager;
 import logbook.thread.ThreadStateObserver;
 import logbook.util.JIntellitypeWrapper;
@@ -1723,6 +1724,7 @@ public final class ApplicationMain extends WindowBase {
         // プロキシサーバーをシャットダウンする
         ProxyServer.end();
         DatabaseClient.end();
+        TsunDBClient.end();
         // ホットキーを解除
         JIntellitypeWrapper.cleanup();
     }
@@ -1733,14 +1735,8 @@ public final class ApplicationMain extends WindowBase {
         new AsyncExecUpdateCheck(new AsyncExecUpdateCheck.UpdateResult() {
 
             @Override
-            public void onSuccess(final String[] okversions) {
-                boolean ok = false;
-                for (String okversion : okversions) {
-                    if (AppConstants.VERSION.equals(okversion)) {
-                        ok = true;
-                        break;
-                    }
-                }
+            public void onSuccess(final String version) {
+                boolean ok = AppConstants.VERSION.equals(version);
 
                 if ((ok == false) && AppConfig.get().isUpdateCheck()) {
                     display.asyncExec(new Runnable() {
@@ -1757,7 +1753,7 @@ public final class ApplicationMain extends WindowBase {
                                 box.setText("新しいバージョン");
                                 box.setMessage("新しいバージョンがあります。ホームページを開きますか？\r\n"
                                         + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
-                                        + "新しいバージョン:" + okversions[0] + "\r\n"
+                                        + "新しいバージョン:" + version + "\r\n"
                                         + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
 
                                 // OKを押されたらホームページへ移動する

@@ -238,6 +238,16 @@ public final class ConfigDialog extends Dialog {
         proxyPortSpinner.setSelection(AppConfig.get().getProxyPort());
         proxyPortSpinner.setLayoutData(SwtUtils.initSpinner(55,
                 new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1)));
+                
+        final Button sendTsunDBButton = new Button(compositeConnection, SWT.CHECK);
+        sendTsunDBButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+        sendTsunDBButton.setText("TsunDBへデータを送信する");
+        sendTsunDBButton.setSelection(AppConfig.get().isSendTsunDB());
+
+        final Button tsunDBLogButton = new Button(compositeConnection, SWT.CHECK);
+        tsunDBLogButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+        tsunDBLogButton.setText("TsunDBへの送信をログ出力する");
+        tsunDBLogButton.setSelection(AppConfig.get().isTsunDBSendLog());
 
         // システム タブ
         compositeSystem.setLayout(new GridLayout(3, false));
@@ -1225,6 +1235,8 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setUseProxy(useProxyButton.getSelection());
                 AppConfig.get().setProxyHost(proxyHostText.getText());
                 AppConfig.get().setProxyPort(proxyPortSpinner.getSelection());
+                AppConfig.get().setSendTsunDB(sendTsunDBButton.getSelection());
+                AppConfig.get().setTsunDBSendLog(tsunDBLogButton.getSelection());
                 // push notify
                 AppConfig.get().setNotifyProwl(prowl.getSelection());
                 AppConfig.get().setProwlAPIKey(prowlAPIKey.getText());
