@@ -8,6 +8,7 @@ import java.util.List;
 import logbook.dto.BattleExDto;
 import logbook.dto.DockDto;
 import logbook.dto.EnemyShipDto;
+import logbook.dto.ItemDto;
 import logbook.dto.ItemInfoDto;
 import logbook.dto.MapCellDto;
 import logbook.dto.ShipDto;
@@ -63,7 +64,8 @@ public class BattleShipWindow extends BattleWindowBase {
                 int[] onSlots = ship.getOnSlot(); // 現在の艦載機搭載数
                 int[] maxeq = ship.getShipInfo().getMaxeq2(); // 艦載機最大搭載数
                 int slotnum = ship.getSlotNum();
-                for (int i = 0; i < 4; ++i) {
+                ItemDto slotEx =ship.getSlotExItem();
+                for (int i = 0; i < 6; ++i) {
                     if (i < slotnum) {
                         String onSlot = "";
                         String itemName = "";
@@ -77,6 +79,10 @@ public class BattleShipWindow extends BattleWindowBase {
                         }
                         setLabelText(this.friendDetail[0][i], String.valueOf(i + 1) + ":" + itemName);
                         this.friendDetail[1][i].setText(onSlot);
+                    }
+                    else if(i == slotnum && slotEx != null)
+                    {
+                        setLabelText(this.friendDetail[0][i], String.valueOf(i + 1) + ":" + slotEx.getName());
                     }
                     else {
                         setLabelText(this.friendDetail[0][i], "");
