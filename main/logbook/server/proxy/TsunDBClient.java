@@ -332,7 +332,7 @@ public class TsunDBClient extends Thread {
         }
         boolean[] sortie = GlobalContext.getIsSortie();
         int sortiedFleet;
-        for (sortiedFleet = 1; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
+        for (sortiedFleet = 0; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
             ;
         int[] map = sortieMap.getMap();
         JsonObjectBuilder job = Json.createObjectBuilder()
@@ -342,10 +342,10 @@ public class TsunDBClient extends Thread {
                 .add("edgeID", toJsonArray(edgeID.stream().mapToInt(i -> i).toArray()))
                 .add("nodeInfo", nodeinfo)
                 .add("nextRoute", json.getInt("api_next"))
-                .add("sortiedFleet", sortiedFleet)
+                .add("sortiedFleet", sortiedFleet + 1)
                 .add("fleetType", GlobalContext.getCombined())
-                .add("fleet1", handleFleet(sortiedFleet));
-        DockDto dock = GlobalContext.getDock(String.valueOf(sortiedFleet));
+                .add("fleet1", handleFleet(sortiedFleet + 1));
+        DockDto dock = GlobalContext.getDock(String.valueOf(sortiedFleet + 1));
         List<ShipDto> s = dock.getShips();
         boolean[] escaped = dock.getEscaped();
         List<ShipDto> ships = new ArrayList<ShipDto>();
@@ -512,9 +512,9 @@ public class TsunDBClient extends Thread {
                 .build();
         boolean[] sortie = GlobalContext.getIsSortie();
         int sortiedFleet;
-        for (sortiedFleet = 1; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
+        for (sortiedFleet = 0; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
             ;
-        DockDto dock = GlobalContext.getDock(String.valueOf(sortiedFleet));
+        DockDto dock = GlobalContext.getDock(String.valueOf(sortiedFleet + 1));
         List<ShipDto> ships = dock.getShips();
         boolean[] escaped = dock.getEscaped();
         List<Integer> fleet1 = new ArrayList<Integer>();
