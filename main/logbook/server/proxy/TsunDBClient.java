@@ -332,7 +332,7 @@ public class TsunDBClient extends Thread {
         }
         boolean[] sortie = GlobalContext.getIsSortie();
         int sortiedFleet;
-        for (sortiedFleet = 0; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
+        for (sortiedFleet = 0; sortiedFleet < sortie.length && !sortie[sortiedFleet]; sortiedFleet++)
             ;
         int[] map = sortieMap.getMap();
         JsonObjectBuilder job = Json.createObjectBuilder()
@@ -512,7 +512,7 @@ public class TsunDBClient extends Thread {
                 .build();
         boolean[] sortie = GlobalContext.getIsSortie();
         int sortiedFleet;
-        for (sortiedFleet = 0; sortiedFleet < sortie.length && sortie[sortiedFleet]; sortiedFleet++)
+        for (sortiedFleet = 0; sortiedFleet < sortie.length && !sortie[sortiedFleet]; sortiedFleet++)
             ;
         DockDto dock = GlobalContext.getDock(String.valueOf(sortiedFleet + 1));
         List<ShipDto> ships = dock.getShips();

@@ -24,7 +24,7 @@ public class AppConstants {
     public static final String SUFFIX = "拡張版";
 
     /** バージョン */
-    public static final String VERSION = "2.5.7.10";
+    public static final String VERSION = "2.5.7.11";
 
     /** ホームページ */
     public static final URI HOME_PAGE_URI = URI.create("https://github.com/Nishisonic/logbook/releases");
