@@ -10,9 +10,11 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
@@ -41,7 +43,6 @@ import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
 import logbook.gui.logic.SakutekiString;
 import logbook.internal.LoggerHolder;
-import logbook.internal.Ship;
 
 import org.eclipse.swt.widgets.Display;
 
@@ -213,12 +214,13 @@ public class TsunDBClient extends Thread {
         }
         int ship = lastBattleDto.isDropShip() ? lastBattleDto.getDropShipId() : -1;
         JsonObjectBuilder counts = Json.createObjectBuilder();
-        GlobalContext.getShipMap().values().stream()
+        int shipCount = GlobalContext.getShipMap().keySet().size();
+        GlobalContext.getShipMap().entrySet().stream()
+                .sorted(Comparator.comparing(Entry::getKey))
+                .limit(shipCount - (ship > 0 ? 1 : 0))
+                .map(Entry::getValue)
                 .collect(Collectors.groupingBy(ShipDto::getCharId, Collectors.counting()))
-                .forEach((charId, count) -> {
-                    counts.add(Integer.toString(charId),
-                            count - (ship > 0 && Ship.get(ship).getCharId() == charId ? 1 : 0));
-                });
+                .forEach((charId, count) -> counts.add(Integer.toString(charId), count));
         String result = Json.createObjectBuilder()
                 .add("map", map)
                 .add("node", node)
