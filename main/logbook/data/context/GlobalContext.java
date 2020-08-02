@@ -1540,7 +1540,7 @@ public final class GlobalContext {
                 JsonNumber m1_flg = apidata.getJsonNumber("api_m1");
                 JsonNumber m2_flg = apidata.getJsonNumber("api_m2");
                 if (((m1_flg != null) && (m1_flg.intValue() != 0)) || ((m2_flg != null) && (m2_flg.intValue() != 0))) {
-                    addUpdateLog(">>> ギミック解除：海域の変化を確認しました！・。・v <<<");
+                    addUpdateLog("＊ギミック解除＊海域の変化を確認しました！");
                 }
             }
         } catch (Exception e) {

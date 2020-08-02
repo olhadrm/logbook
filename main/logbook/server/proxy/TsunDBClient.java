@@ -41,6 +41,7 @@ import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
 import logbook.gui.logic.SakutekiString;
 import logbook.internal.LoggerHolder;
+import logbook.internal.Ship;
 
 import org.eclipse.swt.widgets.Display;
 
@@ -215,7 +216,8 @@ public class TsunDBClient extends Thread {
         GlobalContext.getShipMap().values().stream()
                 .collect(Collectors.groupingBy(ShipDto::getCharId, Collectors.counting()))
                 .forEach((charId, count) -> {
-                    counts.add(Integer.toString(charId), count);
+                    counts.add(Integer.toString(charId),
+                            count - (ship > 0 && Ship.get(ship).getCharId() == charId ? 1 : 0));
                 });
         String result = Json.createObjectBuilder()
                 .add("map", map)
@@ -557,7 +559,8 @@ public class TsunDBClient extends Thread {
                 new InputStreamReader(getInstance().getClass().getResourceAsStream("crc32c.js")))) {
             engine.eval(br.lines().collect(Collectors.joining("")));
             long uniquekey = new BigDecimal(String.valueOf(
-                    engine.eval("crc32c(JSON.stringify(" + tmp.build().getJsonObject("fleet").toString() + "))"))).longValue();
+                    engine.eval("crc32c(JSON.stringify(" + tmp.build().getJsonObject("fleet").toString() + "))")))
+                            .longValue();
             String result = tmp.add("uniquekey", uniquekey).build().toString();
             getInstance().dataQueue.offer(new QueueItem("friendlyfleet", result));
         } catch (ScriptException | IOException e) {
