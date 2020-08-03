@@ -419,6 +419,9 @@ public final class AppConfigBean {
     /** マンスリー遠征警告の表示日(何日前から) */
     private int monthlyExpeditionWarningDays = 5;
 
+    /** 遊撃部隊分表示 */
+    private boolean showStrikingForceFleet = true;
+
     private static RGB cloneRGB(RGB rgb) {
         return new RGB(rgb.red, rgb.green, rgb.blue);
     }
@@ -2354,5 +2357,13 @@ public final class AppConfigBean {
 
     public void setMonthlyExpeditionWarningDays(int monthlyExpeditionWarningDays) {
         this.monthlyExpeditionWarningDays = monthlyExpeditionWarningDays;
+    }
+
+    public boolean isShowStrikingForceFleet() {
+        return this.showStrikingForceFleet;
+    }
+
+    public void setShowStrikingForceFleet(boolean showStrikingForceFleet) {
+        this.showStrikingForceFleet = showStrikingForceFleet;
     }
 }

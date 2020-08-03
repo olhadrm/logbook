@@ -3,6 +3,7 @@ package logbook.gui.widgets;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
@@ -129,6 +131,8 @@ public class FleetComposite extends Composite {
     private final List<Runnable> updators = new ArrayList<>();
 
     private static SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_SHORT_FORMAT);
+
+    private boolean showStrikingForceFleet;
 
     /**
      * @param parent 艦隊タブの親
@@ -250,6 +254,7 @@ public class FleetComposite extends Composite {
             this.nextLabels[i] = next;
             this.timeLabels[i] = time;
         }
+        this.hideStrikingForceFleet();
     }
 
     private int getParam(ItemDto item, String kind) {
@@ -281,6 +286,17 @@ public class FleetComposite extends Composite {
         return 0;
     }
 
+    private void hideStrikingForceFleet() {
+        this.showStrikingForceFleet = AppConfig.get().isShowStrikingForceFleet();
+        this.setRedraw(false);
+        Control[] child = this.fleetGroup.getChildren();
+        for (int i = 1; i <= 3; i++) {
+            LayoutLogic.hide(child[child.length - i], !this.showStrikingForceFleet);
+        }
+        this.layout();
+        this.setRedraw(true);
+    }
+
     /**
      * 艦隊を更新します
      *
@@ -289,6 +305,9 @@ public class FleetComposite extends Composite {
      */
     public void updateFleet(DockDto dock, boolean combinedFleetBadlyDamaed, List<ShipDto> badlyDamaged) {
         if ((this.dock == dock) && !this.dock.isUpdate()) {
+            if (this.showStrikingForceFleet != AppConfig.get().isShowStrikingForceFleet()) {
+                this.hideStrikingForceFleet();
+            }
             // 時間表示だけ更新
             for (Runnable update : this.updators) {
                 update.run();

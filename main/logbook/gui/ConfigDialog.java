@@ -574,6 +574,11 @@ public final class ConfigDialog extends Dialog {
         akashiFormatCombo.add("C.AとBを交互に表示");
         akashiFormatCombo.select(AppConfig.get().getAkashiTimerFormat());
 
+        final Button showStrikingForceFleet = new Button(compositeFleetDetail, SWT.CHECK);
+        showStrikingForceFleet.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        showStrikingForceFleet.setText("遊撃部隊分を表示");
+        showStrikingForceFleet.setSelection(AppConfig.get().isShowStrikingForceFleet());
+
         // 通知
         compositeNotify.setLayout(new GridLayout(3, false));
 
@@ -1187,6 +1192,7 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setShowCondTimer(showCondTimer.getSelection());
                 AppConfig.get().setShowAkashiTimer(showAkashiTimer.getSelection());
                 AppConfig.get().setAkashiTimerFormat(akashiFormatCombo.getSelectionIndex());
+                AppConfig.get().setShowStrikingForceFleet(showStrikingForceFleet.getSelection());
                 AppConfig.get().setSeikuMethod(seikuCombo.getSelectionIndex());
                 AppConfig.get().setSakutekiMethodV4(sakutekiCombo.getSelectionIndex());
                 AppConfig.get().setBunkitenKeisu(Double.valueOf(bunkiten.getText()));
