@@ -678,34 +678,39 @@ public class BattleHtmlGenerator extends HTMLGenerator {
                             : atack.getSpecialAttackString(atack.showitem);
                 }
                 else if ((i == 1) && (HTypeS.equals("ネルソンタッチ"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[2]], maxOriginHp[atack.origin[2]]);
+                    String tooltipText = getHpString(originHp[2], maxOriginHp[2]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 2), textClass[0]);
                 }
                 else if ((i == 2) && (HTypeS.equals("ネルソンタッチ"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[4]], maxOriginHp[atack.origin[4]]);
+                    String tooltipText = getHpString(originHp[4], maxOriginHp[4]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 4), textClass[0]);
                 }
                 else if ((i == 1) && (HTypeS.equals("一斉射かッ…胸が熱いな！") || HTypeS.equals("長門、いい？ いくわよ！ 主砲一斉射ッ！"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[0]], maxOriginHp[atack.origin[0]]);
+                    String tooltipText = getHpString(originHp[0], maxOriginHp[0]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 0), textClass[0]);
                 }
                 else if ((i == 2) && (HTypeS.equals("一斉射かッ…胸が熱いな！") || HTypeS.equals("長門、いい？ いくわよ！ 主砲一斉射ッ！"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[1]], maxOriginHp[atack.origin[1]]);
+                    String tooltipText = getHpString(originHp[1], maxOriginHp[1]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 1), textClass[0]);
                 }
-                else if ((i == 1) && (HTypeS.equals("コロラド特殊攻撃") || HTypeS.equals("僚艦夜戦突撃"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[1]], maxOriginHp[atack.origin[1]]);
+                else if ((i == 1) && (HTypeS.equals("コロラド特殊攻撃"))) {
+                    String tooltipText = getHpString(originHp[1], maxOriginHp[1]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 1), textClass[0]);
                 }
                 else if ((i == 2) && (HTypeS.equals("コロラド特殊攻撃"))) {
-                    String tooltipText = getHpString(originHp[atack.origin[2]], maxOriginHp[atack.origin[2]]);
+                    String tooltipText = getHpString(originHp[2], maxOriginHp[2]);
                     this.inline("td", text[0], null);
                     this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, 2), textClass[0]);
+                }
+                else if ((i == 1) && (HTypeS.equals("僚艦夜戦突撃"))) {
+                    String tooltipText = getHpString(originHp[atack.origin[0] + 1], maxOriginHp[atack.origin[0] + 1]);
+                    this.inline("td", text[0], null);
+                    this.inline("td", "title='" + tooltipText + "'", this.getShipName(origin, atack.origin[0] + 1), textClass[0]);
                 }
                 else {
                     this.inline("td", getColSpan(2), "", null);
