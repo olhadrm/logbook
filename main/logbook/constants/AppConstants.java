@@ -24,7 +24,7 @@ public class AppConstants {
     public static final String SUFFIX = "拡張版";
 
     /** バージョン */
-    public static final String VERSION = "2.5.7.13";
+    public static final String VERSION = "2.5.7.14";
 
     /** ホームページ */
     public static final URI HOME_PAGE_URI = URI.create("https://github.com/Nishisonic/logbook/releases");
@@ -354,6 +354,9 @@ public class AppConstants {
 
     /** メッセージ 艦隊防空値:{0} */
     public static final String MESSAGE_AA = "艦隊防空値:{0}。";
+
+    /** メッセージ  航空偵察スコア:{0} */
+    public static final String MESSAGE_AVIATION_DETECTION = "航空偵察スコア:{0}。";
 
     /** Push 通知のアプリケーション名*/
     public static final String PUSH_NOTIFY_APPNAME = "航海日誌";

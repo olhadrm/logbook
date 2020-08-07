@@ -907,6 +907,12 @@ public class FleetComposite extends Composite {
         // 合計Lv
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TOTAL_LV, totallv), null);
 
+        // 航空偵察スコア
+        AviationDetectionString aviationDetectionString = new AviationDetectionString(ships);
+        this.addStyledText(this.message,
+                MessageFormat.format(AppConstants.MESSAGE_AVIATION_DETECTION, aviationDetectionString.toString()),
+                null);
+
         this.addStyledText(this.message, "\n", null);
 
         if (dram > 0) {

@@ -422,6 +422,9 @@ public final class AppConfigBean {
     /** 遊撃部隊分表示 */
     private boolean showStrikingForceFleet = true;
 
+    /** イベント基地を使用するか */
+    private boolean isUseEventAirbase = true;
+
     private static RGB cloneRGB(RGB rgb) {
         return new RGB(rgb.red, rgb.green, rgb.blue);
     }
@@ -2365,5 +2368,13 @@ public final class AppConfigBean {
 
     public void setShowStrikingForceFleet(boolean showStrikingForceFleet) {
         this.showStrikingForceFleet = showStrikingForceFleet;
+    }
+
+    public boolean isUseEventAirbase() {
+        return this.isUseEventAirbase;
+    }
+
+    public void setUseEventAirbase(boolean isUseEventAirbase) {
+        this.isUseEventAirbase = isUseEventAirbase;
     }
 }
