@@ -315,11 +315,17 @@ public final class AppConfigBean {
     /** 艦これ統計データベースへのデータ送信 */
     private boolean sendDatabase = false;
 
+    /** TsunDBへのデータ送信 */
+    private boolean sendTsunDB = false;
+
     /** 艦これ統計データベースへ送信するときのアクセスキー */
     private String accessKey = "";
 
     /** 艦これ統計データベースへのデータ送信をログ出力するか？ */
     private boolean databaseSendLog = false;
+
+    /** TsunDBへのデータ送信をログ出力するか？ */
+    private boolean tsunDBSendLog = false;
 
     /** ウィンドウの表示状態 */
     private Map<String, WindowConfigBean> windowConfigMap = new HashMap<String, WindowConfigBean>();
@@ -412,6 +418,12 @@ public final class AppConfigBean {
 
     /** マンスリー遠征警告の表示日(何日前から) */
     private int monthlyExpeditionWarningDays = 5;
+
+    /** 遊撃部隊分表示 */
+    private boolean showStrikingForceFleet = true;
+
+    /** イベント基地を使用するか */
+    private boolean isUseEventAirbase = true;
 
     private static RGB cloneRGB(RGB rgb) {
         return new RGB(rgb.red, rgb.green, rgb.blue);
@@ -1790,6 +1802,14 @@ public final class AppConfigBean {
         this.sendDatabase = sendDatabase;
     }
 
+    public boolean isSendTsunDB() {
+        return this.sendTsunDB;
+    }
+
+    public void setSendTsunDB(boolean sendTsunDB) {
+        this.sendTsunDB = sendTsunDB;
+    }
+
     /**
      * @return accessKey
      */
@@ -1914,6 +1934,14 @@ public final class AppConfigBean {
      */
     public void setDatabaseSendLog(boolean databaseSendLog) {
         this.databaseSendLog = databaseSendLog;
+    }
+
+    public boolean isTsunDBSendLog() {
+        return this.tsunDBSendLog;
+    }
+
+    public void setTsunDBSendLog(boolean tsunDBSendLog) {
+        this.tsunDBSendLog = tsunDBSendLog;
     }
 
     /**
@@ -2332,5 +2360,21 @@ public final class AppConfigBean {
 
     public void setMonthlyExpeditionWarningDays(int monthlyExpeditionWarningDays) {
         this.monthlyExpeditionWarningDays = monthlyExpeditionWarningDays;
+    }
+
+    public boolean isShowStrikingForceFleet() {
+        return this.showStrikingForceFleet;
+    }
+
+    public void setShowStrikingForceFleet(boolean showStrikingForceFleet) {
+        this.showStrikingForceFleet = showStrikingForceFleet;
+    }
+
+    public boolean isUseEventAirbase() {
+        return this.isUseEventAirbase;
+    }
+
+    public void setUseEventAirbase(boolean isUseEventAirbase) {
+        this.isUseEventAirbase = isUseEventAirbase;
     }
 }

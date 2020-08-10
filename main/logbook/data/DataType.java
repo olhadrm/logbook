@@ -119,6 +119,8 @@ public enum DataType {
     START2("/kcsapi/api_start2/getData"),
     /** マップ情報 */
     MAPINFO("/kcsapi/api_get_member/mapinfo"),
+    /** 難易度選択 */
+    SELECT_EVENTMAP_RANK("/kcsapi/api_req_map/select_eventmap_rank"),
     /** 遠征情報 */
     MISSION("/kcsapi/api_get_member/mission"),
     /** 演習情報 */
@@ -153,6 +155,8 @@ public enum DataType {
     SUPPLY("/kcsapi/api_req_air_corps/supply"),
     /** 基地航空隊:名前変更 */
     CHANGE_NAME("/kcsapi/api_req_air_corps/change_name"),
+    /** 友軍艦隊設定 */
+    SET_FRIENDLY_REQUEST("/kcsapi/api_req_member/set_friendly_request"),
     /** フィルタ前のデータ */
     UNDEFINED(null);
 

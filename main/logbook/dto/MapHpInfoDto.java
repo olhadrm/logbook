@@ -6,6 +6,8 @@ public class MapHpInfoDto {
 
     private int difficulty;
 
+    private int cleared;
+
     private int defeatCount;
 
     private int requiredDefeatCount;
@@ -18,9 +20,10 @@ public class MapHpInfoDto {
 
     private int gaugeType;
 
-    public MapHpInfoDto(int mapId, int difficulty, int defeatCount, int requiredDefeatCount, int nowMapHp, int maxMapHp, int gaugeIndex, int gaugeType) {
+    public MapHpInfoDto(int mapId, int difficulty, int cleared, int defeatCount, int requiredDefeatCount, int nowMapHp, int maxMapHp, int gaugeIndex, int gaugeType) {
         this.mapId = mapId;
         this.difficulty = difficulty;
+        this.cleared = cleared;
         this.defeatCount = defeatCount;
         this.requiredDefeatCount = requiredDefeatCount;
         this.nowMapHp = nowMapHp;
@@ -35,6 +38,10 @@ public class MapHpInfoDto {
 
     public int getDifficulty() {
         return this.difficulty;
+    }
+
+    public int getCleared() {
+        return this.cleared;
     }
 
     public String getDifficultyString() {

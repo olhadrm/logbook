@@ -535,7 +535,7 @@ public class BattleExDto extends AbstractDto {
             this.openingTaisen = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                     JsonUtils.getJsonObject(object, "api_opening_taisen"),
                     kind.isOpeningSecond(),
-                    this.isEnemySecond);
+                    this.isEnemySecond, true);
 
             // 開幕
             this.opening = BattleAtackDto.makeRaigeki(baseidx, battle.friendSecondBase,
@@ -546,36 +546,36 @@ public class BattleExDto extends AbstractDto {
             if (this.isFriendSecond) {
                 this.hougeki = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                         JsonUtils.getJsonObject(object, "api_hougeki"),
-                        true, this.isEnemySecond); // 自分が連合艦隊の場合の夜戦
+                        true, this.isEnemySecond, false); // 自分が連合艦隊の場合の夜戦
             }
             else {
                 this.hougeki = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                         JsonUtils.getJsonObject(object, "api_hougeki"),
-                        kind.isHougekiSecond(), this.isEnemySecond); // 夜戦
+                        kind.isHougekiSecond(), this.isEnemySecond, false); // 夜戦
             }
             if (this.isNightToDay) {
                 this.hougeki_n_1 = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                         JsonUtils.getJsonObject(object, "api_n_hougeki1"),
-                        false, true);
+                        false, true, false);
                 this.hougeki_n_2 = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                         JsonUtils.getJsonObject(object, "api_n_hougeki2"),
-                        false, false);
+                        false, false, false);
             }
             this.hougeki1 = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                     JsonUtils.getJsonObject(object, "api_hougeki1"),
-                    kind.isHougeki1Second(), this.isEnemySecond);
+                    kind.isHougeki1Second(), this.isEnemySecond, true);
             this.hougeki2 = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                     JsonUtils.getJsonObject(object, "api_hougeki2"),
-                    kind.isHougeki2Second(), this.isEnemySecond);
+                    kind.isHougeki2Second(), this.isEnemySecond, true);
             this.hougeki3 = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                     JsonUtils.getJsonObject(object, "api_hougeki3"),
-                    kind.isHougeki3Second(), this.isEnemySecond);
+                    kind.isHougeki3Second(), this.isEnemySecond, true);
 
             if (this.isFriendFleet) {
 		JsonObject FriendObj = JsonUtils.getJsonObject(object, "api_friendly_battle");
                 this.hougeki_f = BattleAtackDto.makeHougeki(baseidx, battle.friendSecondBase,
                         JsonUtils.getJsonObject(FriendObj, "api_hougeki"),
-                        false, false);
+                        false, false, false);
             }
 
 

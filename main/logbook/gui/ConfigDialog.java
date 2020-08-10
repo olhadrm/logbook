@@ -238,6 +238,16 @@ public final class ConfigDialog extends Dialog {
         proxyPortSpinner.setSelection(AppConfig.get().getProxyPort());
         proxyPortSpinner.setLayoutData(SwtUtils.initSpinner(55,
                 new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1)));
+                
+        final Button sendTsunDBButton = new Button(compositeConnection, SWT.CHECK);
+        sendTsunDBButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+        sendTsunDBButton.setText("TsunDBへデータを送信する");
+        sendTsunDBButton.setSelection(AppConfig.get().isSendTsunDB());
+
+        final Button tsunDBLogButton = new Button(compositeConnection, SWT.CHECK);
+        tsunDBLogButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+        tsunDBLogButton.setText("TsunDBへの送信をログ出力する");
+        tsunDBLogButton.setSelection(AppConfig.get().isTsunDBSendLog());
 
         // システム タブ
         compositeSystem.setLayout(new GridLayout(3, false));
@@ -563,6 +573,11 @@ public final class ConfigDialog extends Dialog {
         akashiFormatCombo.add("B.次の回復までの時間");
         akashiFormatCombo.add("C.AとBを交互に表示");
         akashiFormatCombo.select(AppConfig.get().getAkashiTimerFormat());
+
+        final Button showStrikingForceFleet = new Button(compositeFleetDetail, SWT.CHECK);
+        showStrikingForceFleet.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        showStrikingForceFleet.setText("遊撃部隊分を表示");
+        showStrikingForceFleet.setSelection(AppConfig.get().isShowStrikingForceFleet());
 
         // 通知
         compositeNotify.setLayout(new GridLayout(3, false));
@@ -1177,6 +1192,7 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setShowCondTimer(showCondTimer.getSelection());
                 AppConfig.get().setShowAkashiTimer(showAkashiTimer.getSelection());
                 AppConfig.get().setAkashiTimerFormat(akashiFormatCombo.getSelectionIndex());
+                AppConfig.get().setShowStrikingForceFleet(showStrikingForceFleet.getSelection());
                 AppConfig.get().setSeikuMethod(seikuCombo.getSelectionIndex());
                 AppConfig.get().setSakutekiMethodV4(sakutekiCombo.getSelectionIndex());
                 AppConfig.get().setBunkitenKeisu(Double.valueOf(bunkiten.getText()));
@@ -1225,6 +1241,8 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setUseProxy(useProxyButton.getSelection());
                 AppConfig.get().setProxyHost(proxyHostText.getText());
                 AppConfig.get().setProxyPort(proxyPortSpinner.getSelection());
+                AppConfig.get().setSendTsunDB(sendTsunDBButton.getSelection());
+                AppConfig.get().setTsunDBSendLog(tsunDBLogButton.getSelection());
                 // push notify
                 AppConfig.get().setNotifyProwl(prowl.getSelection());
                 AppConfig.get().setProwlAPIKey(prowlAPIKey.getText());

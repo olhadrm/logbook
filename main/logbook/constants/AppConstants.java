@@ -24,14 +24,14 @@ public class AppConstants {
     public static final String SUFFIX = "拡張版";
 
     /** バージョン */
-    public static final String VERSION = "2.5.7.8";
+    public static final String VERSION = "2.5.7.15";
 
     /** ホームページ */
-    public static final URI HOME_PAGE_URI = URI.create("http://nekopanda.blog.jp/");
+    public static final URI HOME_PAGE_URI = URI.create("https://github.com/Nishisonic/logbook/releases");
 
     /** アップデートチェック先 */
     public static final URI UPDATE_CHECK_URI = URI
-            .create("http://nekopandanet.sakura.ne.jp/logbook/version/okversions.txt");
+            .create("https://api.github.com/repos/Nishisonic/logbook/releases/latest");
 
     /** 日付書式 */
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -354,6 +354,9 @@ public class AppConstants {
 
     /** メッセージ 艦隊防空値:{0} */
     public static final String MESSAGE_AA = "艦隊防空値:{0}。";
+
+    /** メッセージ  航空偵察スコア:{0} */
+    public static final String MESSAGE_AVIATION_DETECTION = "航空偵察スコア:{0}。";
 
     /** Push 通知のアプリケーション名*/
     public static final String PUSH_NOTIFY_APPNAME = "航海日誌";

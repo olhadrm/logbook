@@ -18,6 +18,16 @@ import javax.json.JsonValue;
  */
 public class JsonUtils {
 
+    public static int[] toCompulsionIntArray(JsonArray jsonArray) {
+        if (jsonArray == null)
+            return new int[0];
+        int[] ret = new int[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            ret[i] = Integer.parseInt(jsonArray.get(i).toString());
+        }
+        return ret;
+    }
+
     public static int[] toIntArray(JsonArray jsonArray) {
         if (jsonArray == null)
             return new int[0];

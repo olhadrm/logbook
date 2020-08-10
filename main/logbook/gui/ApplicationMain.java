@@ -43,6 +43,7 @@ import logbook.internal.Item;
 import logbook.scripting.ScriptData;
 import logbook.server.proxy.DatabaseClient;
 import logbook.server.proxy.ProxyServer;
+import logbook.server.proxy.TsunDBClient;
 import logbook.thread.ThreadManager;
 import logbook.thread.ThreadStateObserver;
 import logbook.util.JIntellitypeWrapper;
@@ -99,8 +100,7 @@ public final class ApplicationMain extends WindowBase {
                 public void run() {
                     try {
                         main.printMessage(mes);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         LOG.get().warn("ログの追加に失敗", e);
                     }
                 }
@@ -996,21 +996,21 @@ public final class ApplicationMain extends WindowBase {
         gdconTimeTime.widthHint = SwtUtils.DPIAwareWidth(75);
         this.condTimerTime.setLayoutData(gdconTimeTime);
 
-        this.resultRecordGroup = new Composite(this.mainComposite,SWT.NONE);
+        this.resultRecordGroup = new Composite(this.mainComposite, SWT.NONE);
         this.resultRecordGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         this.resultRecordGroup.setLayout(SwtUtils.makeGridLayout(2, 1, 1, 3, 3));
 
         this.resultRecordLabel = new Label(this.resultRecordGroup, SWT.NONE);
-        this.resultRecordLabel.setText(String.format("戦果　今回: %8.2f / 今日: %8.2f / 今月: %8.2f",0.0,0.0,0.0));
+        this.resultRecordLabel.setText(String.format("戦果　今回: %8.2f / 今日: %8.2f / 今月: %8.2f", 0.0, 0.0, 0.0));
         this.resultRecordLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         this.admiralExpLabel = new Label(this.resultRecordGroup, SWT.RIGHT);
-        this.admiralExpLabel.setText(String.format("%d exp.",0));
+        this.admiralExpLabel.setText(String.format("%d exp.", 0));
         GridData gdAdmiralExp = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
         gdAdmiralExp.widthHint = SwtUtils.DPIAwareWidth(80);
         this.admiralExpLabel.setLayoutData(gdAdmiralExp);
 
-        this.airbaseGroup = new Composite(this.mainComposite,SWT.NONE);
+        this.airbaseGroup = new Composite(this.mainComposite, SWT.NONE);
         this.airbaseGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         this.airbaseGroup.setLayout(SwtUtils.makeGridLayout(1, 1, 1, 3, 3));
 
@@ -1025,7 +1025,7 @@ public final class ApplicationMain extends WindowBase {
             }
         });
 
-        this.mapHpInfoGroup = new Composite(this.mainComposite,SWT.NONE);
+        this.mapHpInfoGroup = new Composite(this.mainComposite, SWT.NONE);
         this.mapHpInfoGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         this.mapHpInfoGroup.setLayout(SwtUtils.makeGridLayout(1, 1, 1, 3, 3));
 
@@ -1050,7 +1050,7 @@ public final class ApplicationMain extends WindowBase {
         this.errorLabel.setText("エラー表示");
         LayoutLogic.hide(this.errorLabel, true);
         this.errorLabel.setVisible(false);
-        
+
         // マンスリー遠征警告表示
         this.warningExpeditionLabel = new Label(this.mainComposite, SWT.NONE);
         this.warningExpeditionLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -1196,12 +1196,12 @@ public final class ApplicationMain extends WindowBase {
         });
 
         final MenuItem rootCopyDeckBuilder = new MenuItem(this.getPopupMenu(), SWT.CASCADE);
-        rootCopyDeckBuilder.setText("艦隊シミュレーター＆デッキビルダー");
+        rootCopyDeckBuilder.setText("デッキビルダー");
         Menu copyDeckBuilderMenu = new Menu(rootCopyDeckBuilder);
         /*
         final MenuItem copyDeckBuilderFormat = new MenuItem(copyDeckBuilderMenu, SWT.PUSH);
         copyDeckBuilderFormat.setText("フォーマットをクリップボードにコピー");
-
+        
         copyDeckBuilderFormat.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -1225,7 +1225,7 @@ public final class ApplicationMain extends WindowBase {
             }
         });*/
         final MenuItem copyDeckBuilderURL = new MenuItem(copyDeckBuilderMenu, SWT.PUSH);
-        copyDeckBuilderURL.setText("URLをクリップボードにコピー");
+        copyDeckBuilderURL.setText("編成をコピー(デッキビルダーURL)");
 
         copyDeckBuilderURL.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -1248,6 +1248,46 @@ public final class ApplicationMain extends WindowBase {
                     mes.open();
                     shell.dispose();
                 }
+            }
+        });
+        final MenuItem copyKcToolsURL = new MenuItem(copyDeckBuilderMenu, SWT.PUSH);
+        copyKcToolsURL.setText("編成をコピー(制空権シミュレータURL)");
+
+        copyKcToolsURL.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                boolean[] isUseCopyDeckBuilder = {
+                        AppConfig.get().isUseCopyDeckBuilder1(),
+                        AppConfig.get().isUseCopyDeckBuilder2(),
+                        AppConfig.get().isUseCopyDeckBuilder3(),
+                        AppConfig.get().isUseCopyDeckBuilder4() };
+                if (GlobalContext.getState() == 1) {
+                    boolean isUseEventAirbase = AppConfig.get().isUseEventAirbase();
+                    Clipboard clipboard = new Clipboard(Display.getDefault());
+                    clipboard.setContents(
+                            new Object[] { new DeckBuilder().getKcToolsBuilderURL(isUseCopyDeckBuilder,
+                                    isUseEventAirbase) },
+                            new Transfer[] { TextTransfer.getInstance() });
+                }
+                else {
+                    Shell shell = new Shell(Display.getDefault(), SWT.TOOL);
+                    MessageBox mes = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
+                    mes.setText(AppConstants.TITLEBAR_TEXT);
+                    mes.setMessage("情報が不足しています。艦これをリロードしてデータを読み込んでください。");
+                    mes.open();
+                    shell.dispose();
+                }
+            }
+        });
+
+        new MenuItem(copyDeckBuilderMenu, SWT.SEPARATOR);
+        final MenuItem useEventAirbase = new MenuItem(copyDeckBuilderMenu, SWT.CHECK);
+        useEventAirbase.setText("イベント海域の基地を使用");
+        useEventAirbase.setSelection(AppConfig.get().isUseEventAirbase());
+        useEventAirbase.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                AppConfig.get().setUseEventAirbase(useEventAirbase.getSelection());
             }
         });
         new MenuItem(copyDeckBuilderMenu, SWT.SEPARATOR);
@@ -1355,9 +1395,11 @@ public final class ApplicationMain extends WindowBase {
                 if (GlobalContext.getState() == 1) {
                     boolean isLockedOnlyAnalysisFormat = AppConfig.get().isUseLockedOnlyAnalysisFormat();
                     Clipboard clipboard = new Clipboard(Display.getDefault());
-                                  clipboard.setContents(new Object[] { new FleetAnalysis().getShipsFormat(isLockedOnlyAnalysisFormat) },
+                    clipboard.setContents(
+                            new Object[] { new FleetAnalysis().getShipsFormat(isLockedOnlyAnalysisFormat) },
                             new Transfer[] { TextTransfer.getInstance() });
-                } else {
+                }
+                else {
                     Shell shell = new Shell(Display.getDefault(), SWT.TOOL);
                     MessageBox mes = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
                     mes.setText(AppConstants.TITLEBAR_TEXT);
@@ -1367,7 +1409,6 @@ public final class ApplicationMain extends WindowBase {
                 }
             }
         });
-
 
         final MenuItem copyItemFormat = new MenuItem(copyItemFormatterMenu, SWT.PUSH);
         copyItemFormat.setText("装備フォーマットをクリップボードにコピー");
@@ -1379,9 +1420,11 @@ public final class ApplicationMain extends WindowBase {
                 if (GlobalContext.getState() == 1) {
                     boolean isLockedOnlyAnalysisFormat = AppConfig.get().isUseLockedOnlyAnalysisFormat();
                     Clipboard clipboard = new Clipboard(Display.getDefault());
-                                  clipboard.setContents(new Object[] { new FleetAnalysis().getItemsFormat(isLockedOnlyAnalysisFormat) },
+                    clipboard.setContents(
+                            new Object[] { new FleetAnalysis().getItemsFormat(isLockedOnlyAnalysisFormat) },
                             new Transfer[] { TextTransfer.getInstance() });
-                } else {
+                }
+                else {
                     Shell shell = new Shell(Display.getDefault(), SWT.TOOL);
                     MessageBox mes = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
                     mes.setText(AppConstants.TITLEBAR_TEXT);
@@ -1416,7 +1459,6 @@ public final class ApplicationMain extends WindowBase {
                 AppConfig.get().setUseLockedOnlyAnalysisFormat(isLockedOnlyAnalysisFormat.getSelection());
             }
         });
-
 
         // 選択する項目はドラックで移動できないようにする
         for (Control c : new Control[] { this.commandComposite,
@@ -1723,6 +1765,7 @@ public final class ApplicationMain extends WindowBase {
         // プロキシサーバーをシャットダウンする
         ProxyServer.end();
         DatabaseClient.end();
+        TsunDBClient.end();
         // ホットキーを解除
         JIntellitypeWrapper.cleanup();
     }
@@ -1733,14 +1776,8 @@ public final class ApplicationMain extends WindowBase {
         new AsyncExecUpdateCheck(new AsyncExecUpdateCheck.UpdateResult() {
 
             @Override
-            public void onSuccess(final String[] okversions) {
-                boolean ok = false;
-                for (String okversion : okversions) {
-                    if (AppConstants.VERSION.equals(okversion)) {
-                        ok = true;
-                        break;
-                    }
-                }
+            public void onSuccess(final String version) {
+                boolean ok = AppConstants.VERSION.equals(version);
 
                 if ((ok == false) && AppConfig.get().isUpdateCheck()) {
                     display.asyncExec(new Runnable() {
@@ -1757,7 +1794,7 @@ public final class ApplicationMain extends WindowBase {
                                 box.setText("新しいバージョン");
                                 box.setMessage("新しいバージョンがあります。ホームページを開きますか？\r\n"
                                         + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
-                                        + "新しいバージョン:" + okversions[0] + "\r\n"
+                                        + "新しいバージョン:" + version + "\r\n"
                                         + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
 
                                 // OKを押されたらホームページへ移動する
@@ -1768,8 +1805,7 @@ public final class ApplicationMain extends WindowBase {
                                         LOG.get().warn("ウェブサイトに移動が失敗しました", e);
                                     }
                                 }
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
                                 LOG.get().warn("更新確認でエラー", e);
                             }
                         }
@@ -2136,13 +2172,21 @@ public final class ApplicationMain extends WindowBase {
         return this.akashiTimerTime;
     }
 
-    public Label getResultRecordLabel() { return this.resultRecordLabel; }
+    public Label getResultRecordLabel() {
+        return this.resultRecordLabel;
+    }
 
-    public Label getAdmiralExpLabel(){ return this.admiralExpLabel; }
+    public Label getAdmiralExpLabel() {
+        return this.admiralExpLabel;
+    }
 
-    public Combo getAirbaseCombo(){ return this.airbaseCombo; }
+    public Combo getAirbaseCombo() {
+        return this.airbaseCombo;
+    }
 
-    public Combo getMapHpInfoCombo(){ return this.mapHpInfoCombo; }
+    public Combo getMapHpInfoCombo() {
+        return this.mapHpInfoCombo;
+    }
 
     /**
      * エラーラベルを取得
@@ -2244,21 +2288,23 @@ public final class ApplicationMain extends WindowBase {
         this.calcPracticeExpWindow.updatePracticeUser(practiceUserExDto);
     }
 
-    public void updateResultRecord(){
+    public void updateResultRecord() {
         updateResultRecord(AppConfig.get().isMinimumLayout());
     }
 
-    public void updateResultRecord(boolean isMinimumLayout){
+    public void updateResultRecord(boolean isMinimumLayout) {
         // 戦果
         ResultRecord r = GlobalContext.getResultRecord();
-        String resultRecordTooltipText = String.format("今回: +%d exp. / 戦果 %.2f \r\n今日: +%d exp. / 戦果 %.2f \r\n今月: +%d exp. / 戦果 %.2f ",
+        String resultRecordTooltipText = String.format(
+                "今回: +%d exp. / 戦果 %.2f \r\n今日: +%d exp. / 戦果 %.2f \r\n今月: +%d exp. / 戦果 %.2f ",
                 r.getAcquiredAdmiralExpOfHalfDay(), r.getAcquiredValueOfHalfDay(),
                 r.getAcquiredAdmiralExpOfDay(), r.getAcquiredValueOfDay(),
                 r.getAcquiredAdmiralExpOfMonth(), r.getAcquiredValueOfMonth());
         // 縮小表示にした際、大きくレイアウトが崩れるため表示変更
         if (isMinimumLayout) {
             resultRecordLabel.setText("戦果");
-        } else {
+        }
+        else {
             resultRecordLabel.setText(String.format("戦果　今回: %8.2f / 今日: %8.2f / 今月: %8.2f",
                     r.getAcquiredValueOfHalfDay(),
                     r.getAcquiredValueOfDay(),
@@ -2269,29 +2315,31 @@ public final class ApplicationMain extends WindowBase {
         admiralExpLabel.setToolTipText(resultRecordTooltipText);
     }
 
-    public void updateAirbase(){
+    public void updateAirbase() {
         updateAirbase(AppConfig.get().isMinimumLayout());
     }
 
-    public void updateAirbase(boolean isMinimumLayout){
+    public void updateAirbase(boolean isMinimumLayout) {
         Optional.ofNullable(GlobalContext.getAirbase()).ifPresent(airbase -> {
             int select = this.airbaseCombo.getSelectionIndex();
             this.airbaseCombo.removeAll();
             airbase.get().forEach((key, value) -> {
                 String result = "#" + key + " - " + String.join(" ", value.values().stream()
-                        .map(v -> "[" + v.getActionKindString() + "/" + v.getDistance() + "]:" + v.getAirPower().toString())
+                        .map(v -> "[" + v.getActionKindString() + "/" + v.getDistance() + "]:"
+                                + v.getAirPower().toString())
                         .toArray(String[]::new));
                 String miniResult = "#" + key + " - " + String.join(" ", value.values().stream()
-                        .map(v -> "[" + v.getActionKindString().substring(0,1) + "/" + v.getDistance() + "]")
+                        .map(v -> "[" + v.getActionKindString().substring(0, 1) + "/" + v.getDistance() + "]")
                         .toArray(String[]::new));
                 this.airbaseCombo.add(isMinimumLayout ? miniResult : result);
             });
-            if(airbase.get().size() > 0){
+            if (airbase.get().size() > 0) {
                 this.airbaseCombo.select(select < 0 && select < airbase.get().size() ? 0 : select);
             }
 
             String result = "";
-            int area = Integer.parseInt(this.airbaseCombo.getItem(this.airbaseCombo.getSelectionIndex()).replaceAll("#(\\d*).*","$1"));
+            int area = Integer.parseInt(
+                    this.airbaseCombo.getItem(this.airbaseCombo.getSelectionIndex()).replaceAll("#(\\d*).*", "$1"));
             Map<Integer, AirbaseDto.AirCorpsDto> airCorps = airbase.get().get(area);
             AirPower normalAirPower = airCorps.values().stream().filter(airCorp -> {
                 return airCorp.getActionKind() == 2;
@@ -2304,20 +2352,22 @@ public final class ApplicationMain extends WindowBase {
             AirPower highAltitudeInterceptionAirPower = AirbaseDto.getHighAltitudeInterceptionAirPower(airCorps);
             result += "[合計防空制空値(通常)]:" + normalAirPower + "\r\n";
             result += "[合計防空制空値(高高度)]:" + highAltitudeInterceptionAirPower + "\r\n" + "\r\n";
-            for(final int airId : airCorps.keySet().stream().sorted().collect(Collectors.toList())){
+            for (final int airId : airCorps.keySet().stream().sorted().collect(Collectors.toList())) {
                 AirbaseDto.AirCorpsDto airCorp = airCorps.get(airId);
-                result += "#" + area + "-" + airId + " " + "[" + airCorp.getActionKindString() + "]" + airCorp.getName() + "\r\n";
+                result += "#" + area + "-" + airId + " " + "[" + airCorp.getActionKindString() + "]" + airCorp.getName()
+                        + "\r\n";
                 result += "制空値:" + airCorp.getAirPower() + " 半径:" + airCorp.getDistance() + "\r\n";
-                for(final int sqId : airCorp.getSquadrons().keySet().stream().sorted().collect(Collectors.toList())){
+                for (final int sqId : airCorp.getSquadrons().keySet().stream().sorted().collect(Collectors.toList())) {
                     int now = airCorp.getSquadrons().get(sqId).getCount();
                     int max = airCorp.getSquadrons().get(sqId).getMaxCount();
                     int slotid = airCorp.getSquadrons().get(sqId).getSlotid();
-                    if(slotid > 0){
+                    if (slotid > 0) {
                         ItemDto item = GlobalContext.getItem(slotid);
                         result += "[" + now + "/" + max + "]:" + item.getName()
                                 + getLevelString(item.getLevel()) + " " + getAlvString(item.getAlv())
                                 + " (半径:" + item.getParam().getDistance() + ")\r\n";
-                    } else {
+                    }
+                    else {
                         result += "(なし)\r\n";
                     }
                 }
@@ -2337,11 +2387,13 @@ public final class ApplicationMain extends WindowBase {
                 int current = 0;
                 int max = 0;
 
-                if (mapinfo.getRequiredDefeatCount() != -1 && mapinfo.getDefeatCount() < mapinfo.getRequiredDefeatCount()) {
+                if (mapinfo.getRequiredDefeatCount() != -1
+                        && mapinfo.getDefeatCount() < mapinfo.getRequiredDefeatCount()) {
                     gaugeType = 1;
                     current = mapinfo.getDefeatCount();
                     max = mapinfo.getRequiredDefeatCount();
-                } else if (mapinfo.getMaxMapHp() > 0) {
+                }
+                else if (mapinfo.getMaxMapHp() > 0) {
                     gaugeType = mapinfo.getGaugeType();
                     current = mapinfo.getNowMapHp();
                     max = mapinfo.getMaxMapHp();
@@ -2351,11 +2403,11 @@ public final class ApplicationMain extends WindowBase {
 
                 if (gaugeType > 0) {
                     return String.format("%d-%d%s: %s%s %d / %d%s", mapAreaId, mapInfoId,
-                    mapinfo.getDifficulty() > 0 ? " " + mapinfo.getDifficultyString() : "",
-                    mapinfo.getGaugeIndex() > 0 ? "#" + mapinfo.getGaugeIndex() + " " : "",
-                    gaugeType == 1 ? "撃破" : gaugeType == 2 ? "HP" : "TP",
-                    current, max,
-                    gaugeType == 1 ? " 回" : "");
+                            mapinfo.getDifficulty() > 0 ? " " + mapinfo.getDifficultyString() : "",
+                            mapinfo.getGaugeIndex() > 0 ? "#" + mapinfo.getGaugeIndex() + " " : "",
+                            gaugeType == 1 ? "撃破" : gaugeType == 2 ? "HP" : "TP",
+                            current, max,
+                            gaugeType == 1 ? " 回" : "");
                 }
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.toList());
@@ -2364,26 +2416,33 @@ public final class ApplicationMain extends WindowBase {
                 this.mapHpInfoCombo.add(result);
             });
 
-            if(info.size() > 0){
+            if (info.size() > 0) {
                 this.mapHpInfoCombo.select(select < 0 && select < info.size() ? 0 : select);
             }
         });
     }
 
-    private String getAlvString(int alv){
-        switch (alv){
-            case 1: return "|";
-            case 2: return "||";
-            case 3: return "|||";
-            case 4: return "/";
-            case 5: return "//";
-            case 6: return "///";
-            case 7: return ">>";
+    private String getAlvString(int alv) {
+        switch (alv) {
+        case 1:
+            return "|";
+        case 2:
+            return "||";
+        case 3:
+            return "|||";
+        case 4:
+            return "/";
+        case 5:
+            return "//";
+        case 6:
+            return "///";
+        case 7:
+            return ">>";
         }
         return "";
     }
 
-    private String getLevelString(int lv){
+    private String getLevelString(int lv) {
         return lv > 0 ? "+" + lv : "";
     }
 

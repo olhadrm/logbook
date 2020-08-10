@@ -93,14 +93,14 @@ public final class VersionDialog extends WindowBase {
         new AsyncExecUpdateCheck(new AsyncExecUpdateCheck.UpdateResult() {
 
             @Override
-            public void onSuccess(final String[] okversions) {
+            public void onSuccess(final String okversion) {
                 display.asyncExec(new Runnable() {
                     @Override
                     public void run() {
                         if (VersionDialog.this.shell.isDisposed() == false) {
                             String text = updateText + "最新版です";
-                            if (okversions[0].equals(AppConstants.VERSION) == false) {
-                                text = "最新版 " + okversions[0] + " が公開されています";
+                            if (okversion.equals(AppConstants.VERSION) == false) {
+                                text = "最新版 " + okversion + " が公開されています";
                             }
                             update.setText(text);
                             VersionDialog.this.shell.layout();

@@ -6,10 +6,13 @@ package logbook.dto;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
+import logbook.internal.Item;
 import logbook.util.JsonUtils;
 
 import com.dyuproject.protostuff.Tag;
@@ -49,17 +52,21 @@ public class BattleAtackDto {
     /** クリティカル */
     @Tag(8)
     public int[] critical;
+    /** 表示装備 */
+    @Tag(10)
+    public int[] showitem;
 
     @Tag(11)
     public boolean combineEnabled;
 
     private static List<BattleAtackDto> makeHougeki(int baseidx,
             JsonArray at_efalg, JsonArray at_list,
-            JsonArray at_type, JsonArray df_list, JsonArray cl_list, JsonArray damage_list) {
+            JsonArray at_type, JsonArray df_list, JsonArray cl_list, JsonArray damage_list, JsonArray si_list) {
         ArrayList<BattleAtackDto> result = new ArrayList<BattleAtackDto>();
         ArrayList<Integer> flatten_df_list = new ArrayList<Integer>();
         ArrayList<Integer> flatten_damage_list = new ArrayList<Integer>();
         ArrayList<Integer> flatten_cl_list = new ArrayList<Integer>();
+        ArrayList<int[]> flatten_si_list = new ArrayList<int[]>();
         // 7隻実装以降は常にある
         boolean hasEflag = (at_efalg != null);
 
@@ -68,6 +75,7 @@ public class BattleAtackDto {
             JsonArray df = (JsonArray) df_list.get(i);
             JsonArray damage = (JsonArray) damage_list.get(i);
             JsonArray cl = (JsonArray) cl_list.get(i);
+            JsonArray si = (JsonArray) si_list.get(i);
             for (int d = 0; d < damage.size(); ++d) {
                 int dfd = df.getInt(d);
                 int damd = damage.getInt(d);
@@ -79,6 +87,7 @@ public class BattleAtackDto {
                     flatten_cl_list.add(cld);
                 }
             }
+            flatten_si_list.add(JsonUtils.toCompulsionIntArray(si));
             int length = flatten_df_list.size();
             if (length > 0) {
                 BattleAtackDto dto = new BattleAtackDto();
@@ -93,6 +102,7 @@ public class BattleAtackDto {
                 dto.target = new int[length];
                 dto.damage = new int[length];
                 dto.critical = new int[length];
+                dto.showitem = flatten_si_list.get(i);
                 for (int c = 0; c < length; ++c) {
                     dto.target[c] = flatten_df_list.get(c);
                     dto.damage[c] = flatten_damage_list.get(c);
@@ -371,11 +381,12 @@ public class BattleAtackDto {
      * @param baseidx 基点(0 or 1)
      * @param friendSecondBase 最初の艦隊の最大艦数(6 or 7)
      * @param hougeki
+     * @param isDay
      */
     public static List<BattleAtackDto> makeHougeki(
             int baseidx, int friendSecondBase,
             JsonObject hougeki,
-            boolean isFriendSecond, boolean isEnemySecond) {
+            boolean isFriendSecond, boolean isEnemySecond, boolean isDay) {
         if (hougeki == null)
             return null;
 
@@ -386,10 +397,11 @@ public class BattleAtackDto {
                 baseidx,
                 JsonUtils.getJsonArray(hougeki, "api_at_eflag"),
                 JsonUtils.getJsonArray(hougeki, "api_at_list"),
-                JsonUtils.getJsonArray(hougeki, "api_at_type"),
+                JsonUtils.getJsonArray(hougeki, isDay ? "api_at_type" : "api_sp_list"),
                 JsonUtils.getJsonArray(hougeki, "api_df_list"),
                 JsonUtils.getJsonArray(hougeki, "api_cl_list"),
-                JsonUtils.getJsonArray(hougeki, "api_damage"));
+                JsonUtils.getJsonArray(hougeki, "api_damage"),
+                JsonUtils.getJsonArray(hougeki, "api_si_list"));
 
         // 旧APIとの互換性: 味方連合艦隊を反映
         if ((baseidx == 1) && isFriendSecond) {
@@ -451,7 +463,7 @@ public class BattleAtackDto {
         return Arrays.asList(new BattleAtackDto[] { dto });
     }
 
-    public String getHougekiTypeString() {
+    public String getHougekiTypeString(int[] showitem) {
         switch (this.type) {
         case -1:
             return "";
@@ -471,7 +483,7 @@ public class BattleAtackDto {
         case 6:
             return "カットイン(主砲/主砲)";
         case 7:
-            return "カットイン(空母)";
+            return "戦爆連合カットイン(" + toShowItemTypeString(showitem, true) + ")";
         case 100:
             return "ネルソンタッチ";
         case 101:
@@ -480,11 +492,93 @@ public class BattleAtackDto {
             return "長門、いい？ いくわよ！ 主砲一斉射ッ！";
         case 103:
             return "コロラド特殊攻撃";
+        case 104:
+            return "僚艦夜戦突撃";
         case 200:
             return "瑞雲立体攻撃";
         case 201:
             return "海空立体攻撃";
         }
         return "不明(" + this.type + ")";
+    }
+
+    public String getSpecialAttackString(int[] showitem) {
+        switch (this.type) {
+        case -1:
+            return "";
+        case 0:
+            //return "通常"; // 見づらくなるので
+            return "";
+        case 1:
+            return "連撃";
+        case 2:
+            return "カットイン(主砲/魚雷)";
+        case 3:
+            return "カットイン(魚雷/魚雷)";
+        case 4:
+            return "カットイン(主砲/主砲/副砲)";
+        case 5:
+            return "カットイン(主砲/主砲/主砲)";
+        case 6:
+            return "夜襲カットイン(" + toShowItemTypeString(showitem, false) + ")";
+        case 7:
+            return "駆逐カットイン(主砲/魚雷/電探)";
+        case 8:
+            return "駆逐カットイン(魚雷/見張員/電探)";
+        case 100:
+            return "ネルソンタッチ";
+        case 101:
+            return "一斉射かッ…胸が熱いな！";
+        case 102:
+            return "長門、いい？ いくわよ！ 主砲一斉射ッ！";
+        case 103:
+            return "コロラド特殊攻撃";
+        case 104:
+            return "僚艦夜戦突撃";
+        case 200:
+            return "瑞雲立体攻撃";
+        case 201:
+            return "海空立体攻撃";
+        }
+        return "不明(" + this.type + ")";
+    }
+
+    private String toShowItemTypeString(int[] showitem, boolean isDay) {
+        if (isDay) {
+            return Arrays.stream(showitem)
+                    .boxed()
+                    .filter(id -> id > 0)
+                    .map(id -> Item.get(id))
+                    .map(item -> {
+                        if (Objects.nonNull(item)) {
+                            switch (item.getType2()) {
+                            case 6:
+                                return "F";
+                            case 7:
+                                return "B";
+                            case 8:
+                                return "A";
+                            }
+                        }
+                        return "?";
+                    })
+                    .collect(Collectors.joining());
+        }
+        return Arrays.stream(showitem)
+                .boxed()
+                .filter(id -> id > 0)
+                .map(id -> Item.get(id))
+                .map(item -> {
+                    if (Objects.nonNull(item)) {
+                        switch (item.getType3()) {
+                        case 45:
+                            return "夜戦";
+                        case 46:
+                            return "夜攻";
+                        }
+                    }
+                    return "その他";
+                })
+                .collect(Collectors.joining("/"));
     }
 }

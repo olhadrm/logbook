@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -203,6 +204,12 @@ public final class GlobalContext {
 
     /** 海域ゲージ */
     private static List<MapHpInfoDto> mapHpInfo;
+
+    /** 友軍艦隊要請 */
+    private static int requestFriendlyFleetFlag;
+
+    /** 友軍艦隊種類 */
+    private static int requestFriendlyFleetType;
 
     /** ShipParameterRecord更新ハンドラ */
     private static UpdateShipParameter updateShipParameter = new UpdateShipParameter();
@@ -583,6 +590,10 @@ public final class GlobalContext {
         return (combinedKind != 0);
     }
 
+    public static int getCombined() {
+        return combinedKind;
+    }
+
     /**
      * データ受信状態
      * @return 0:母港情報未受信 1:正常 2:未取得のデータ有り
@@ -607,6 +618,14 @@ public final class GlobalContext {
 
     public static ResultRecord getResultRecord() {
         return resultRecord;
+    }
+
+    public static boolean getRequestFriendlyFleetFlag(){
+        return requestFriendlyFleetFlag == 1;
+    }
+
+    public static int getRequestFriendlyFleetType() {
+        return requestFriendlyFleetType;
     }
 
     /**
@@ -655,6 +674,9 @@ public final class GlobalContext {
             case PORT:
                 doPort(data, apidata);
                 break;
+            // 友軍艦隊
+            case SET_FRIENDLY_REQUEST:
+                doSetFriendlyRequest(data, apidata);
             // 保有装備
             case SLOTITEM_MEMBER:
                 doSlotitemMember(data, apidata);
@@ -860,6 +882,8 @@ public final class GlobalContext {
             case MAPINFO:
                 doMapInfo(data, apidata);
                 break;
+            case SELECT_EVENTMAP_RANK:
+                doSelectEventmapRank(data, apidata);
             // 遠征情報
             case MISSION:
                 doMission(data, apidata);
@@ -1288,6 +1312,12 @@ public final class GlobalContext {
                     //addConsole("連合艦隊を更新しました");
                 }
 
+                // 友軍艦隊情報更新
+                if (apidata.containsKey("api_friendly_setting")) {
+                    requestFriendlyFleetFlag = apidata.getJsonObject("api_friendly_setting").getInt("api_request_flag");
+                    requestFriendlyFleetType = apidata.getJsonObject("api_friendly_setting").getInt("api_request_type");
+                }
+
                 updateShipParameter.sortieEnd();
                 state = checkDataState(endSortie);
 
@@ -1299,10 +1329,22 @@ public final class GlobalContext {
                     JsonNumber m_flg = EventObj.getJsonNumber("api_m_flag");
                     JsonNumber m_flg2 = EventObj.getJsonNumber("api_m_flag2");
                     if ((m_flg != null) && (m_flg2 != null) && (m_flg2.intValue() > 0)) {
-                        addUpdateLog(">>> ギミック解除：敵勢力の弱体化を確認しました！・。・v <<<");
+                        addUpdateLog("＊ギミック解除＊敵勢力の弱体化を確認しました！");
                     }
                 }
             }
+        } catch (Exception e) {
+            LOG.get().warn("母港を更新しますに失敗しました", e);
+            LOG.get().warn(data);
+        }
+    }
+
+    private static void doSetFriendlyRequest(Data data, JsonValue json) {
+        try {
+            // 友軍艦隊情報更新
+            requestFriendlyFleetFlag = Integer.valueOf(data.getField("api_request_flag"));
+            requestFriendlyFleetType = Integer.valueOf(data.getField("api_request_type"));
+            addUpdateLog("友軍艦隊情報を更新しました");
         } catch (Exception e) {
             LOG.get().warn("母港を更新しますに失敗しました", e);
             LOG.get().warn(data);
@@ -1498,7 +1540,7 @@ public final class GlobalContext {
                 JsonNumber m1_flg = apidata.getJsonNumber("api_m1");
                 JsonNumber m2_flg = apidata.getJsonNumber("api_m2");
                 if (((m1_flg != null) && (m1_flg.intValue() != 0)) || ((m2_flg != null) && (m2_flg.intValue() != 0))) {
-                    addUpdateLog(">>> ギミック解除：海域の変化を確認しました！・。・v <<<");
+                    addUpdateLog("＊ギミック解除＊海域の変化を確認しました！");
                 }
             }
         } catch (Exception e) {
@@ -2708,22 +2750,23 @@ public final class GlobalContext {
 
                     mapHpInfo = apidata.stream().map(JsonObject.class::cast).map(api -> {
                         int mapId = api.getInt("api_id");
+                        int cleared = api.getInt("api_cleared");
                         int gaugeType = api.containsKey("api_gauge_type") ? api.getInt("api_gauge_type") : -1;
                         int gaugeIndex = api.containsKey("api_gauge_num") ? api.getInt("api_gauge_num") : -1;
 
                         if (api.containsKey("api_defeat_count") && api.containsKey("api_required_defeat_count")) {
                             int defeatCount = api.getInt("api_defeat_count");
                             int requiredDefeatCount = api.getInt("api_required_defeat_count");
-                            return new MapHpInfoDto(mapId, -1, defeatCount, requiredDefeatCount, -1, -1, gaugeIndex, gaugeType);
+                            return new MapHpInfoDto(mapId, 0, cleared, defeatCount, requiredDefeatCount, -1, -1, gaugeIndex, gaugeType);
                         }
                         if (api.containsKey("api_eventmap")) {
                             JsonObject eventMap = api.getJsonObject("api_eventmap");
                             int nowMapHp = eventMap.containsKey("api_now_maphp") ? eventMap.getInt("api_now_maphp") : -1;
                             int maxMapHp = eventMap.containsKey("api_max_maphp") ? eventMap.getInt("api_max_maphp") : -1;
                             int difficulty = eventMap.containsKey("api_selected_rank") ? eventMap.getInt("api_selected_rank") : -1;
-                            return new MapHpInfoDto(mapId, difficulty, -1, -1, nowMapHp, maxMapHp, gaugeIndex, gaugeType);
+                            return new MapHpInfoDto(mapId, difficulty, cleared, -1, -1, nowMapHp, maxMapHp, gaugeIndex, gaugeType);
                         }
-                        return new MapHpInfoDto(mapId, -1, -1, -1, -1, -1, gaugeIndex, gaugeType);
+                        return new MapHpInfoDto(mapId, 0, cleared, -1, -1, -1, -1, gaugeIndex, gaugeType);
                     }).collect(Collectors.toList());
                     ApplicationMain.main.updateMapHpInfo();
                 }
@@ -2736,6 +2779,34 @@ public final class GlobalContext {
             }
         } catch (Exception e) {
             LOG.get().warn("マップ情報更新に失敗しました", e);
+            LOG.get().warn(data);
+        }
+    }
+
+    /**
+     * 難易度選択を処理します
+     * @param data
+     * @param json
+     */
+    private static void doSelectEventmapRank(Data data, JsonValue json) {
+        try {
+            int mapId = Integer.parseInt(data.getField("api_maparea_id")) * 10 + Integer.parseInt(data.getField("api_map_no"));
+            int difficulty = Integer.parseInt(data.getField("api_rank"));
+            JsonObject api = ((JsonObject) json);
+            int nowMapHp = api.containsKey("api_now_maphp") ? api.getInt("api_now_maphp") : -1;
+            int maxMapHp = api.containsKey("api_max_maphp") ? api.getInt("api_max_maphp") : -1;
+            int gaugeType = api.containsKey("api_gauge_type") ? api.getInt("api_gauge_type") : -1;
+            int gaugeIndex = api.containsKey("api_gauge_num") ? api.getInt("api_gauge_num") : -1;
+            ListIterator<MapHpInfoDto> iterator = mapHpInfo.listIterator();
+            while (iterator.hasNext()) {
+                MapHpInfoDto _mapHpInfo = (MapHpInfoDto) iterator.next();
+                if (_mapHpInfo.getMapId() == mapId) {
+                    iterator.set(new MapHpInfoDto(mapId, difficulty, 0, -1, -1, nowMapHp, maxMapHp, gaugeIndex, gaugeType));
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LOG.get().warn("難易度選択情報更新に失敗しました", e);
             LOG.get().warn(data);
         }
     }

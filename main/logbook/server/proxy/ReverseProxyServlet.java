@@ -152,6 +152,9 @@ public final class ReverseProxyServlet extends ProxyServlet {
                             if (!Filter.isServerDetected()) {
                                 Filter.setServerName(serverName);
                             }
+
+                            // TsunDB(https://tsundb.kc3.moe/api/)に送信する
+                            TsunDBClient.send(data);
                         }
                     } catch (Exception e) {
                         LOG.get().warn("受信データ処理に失敗", e);
